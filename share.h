@@ -11,13 +11,14 @@
 #include <iostream>
 #include <range/v3/all.hpp>
 
+
 using u8 = uint8_t;
 using u32 = uint32_t;
 using i64 = int64_t;
 using f32 = float;
 using f64 = double;
 using uint = unsigned int;
-
+namespace fs = std::filesystem;
 
 enum class BytesFormat {
     DEC, HEX

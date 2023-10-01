@@ -1,10 +1,25 @@
 #pragma once
-#include <string>
-#include <vector>
+#include <source_location>
 #include <iostream>
-#include <cstdint>
-#include <filesystem>
-#include <numeric>
+#include <format>
+
+//#include <string>
+//#include <vector>
+//
+//#include <cstdint>
+//#include <filesystem>
+//#include <numeric>
+
+//inline static void LOG_ERROR(std::source_location sl = std::source_location::current()) {
+//    auto const str = std::format("SQLite Error: {} ({}) => fn::{}().{}[{}]",
+//                                 err_msg(),
+//                                 err_code(),
+//                                 sl.function_name(),
+//                                 sl.line(),
+//                                 sl.file_name()
+//                                 );
+//    std::cerr << str << '\n';
+//}
 
 #define LOG_ERROR() \
     auto fn = std::string(__FILE__); \
@@ -12,24 +27,4 @@
         fn = fn.substr(pos+1); \
     std::cerr << "SQLITE ERROR: " << err_msg() << " (" << err_code() << ") =>" << fn << "::" << __FUNCTION__ \
     << "()." << __LINE__ << "[" << __FILE__ << "]\n";
-
-using u8 = uint8_t;
-using u32 = uint32_t;
-using i64 = int64_t;
-using f64 = double;
-namespace fs = std::filesystem;
-
-inline static std::string join(std::vector<std::string> const &vec, std::string const& sep = ", ") noexcept {
-    return std::accumulate(
-            std::next(vec.cbegin()),
-            vec.cend(),
-            vec[0],
-            [&sep](std::string a, const std::string& b) {
-                auto result = std::move(a);
-                return result.append(sep).append(b);
-            }
-    );
-}
-
-std::string bytes_as_string(std::vector<u8> const& data) noexcept;
 

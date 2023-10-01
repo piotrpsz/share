@@ -4,11 +4,14 @@
 #include <functional>
 #include <utility>
 #include <initializer_list>
+#include <filesystem>
 #include "amalgamation/sqlite3.h"
+#include "../share.h"
 #include "result.h"
 #include "helper.h"
 #include "row.h"
 #include "result.h"
+
 
 class sqlite_t final {
     static inline std::array<u8, 16> header = {

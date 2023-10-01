@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <variant>
 #include <iostream>
+#include "../share.h"
 #include "helper.h"
 
 using value_t = std::variant<std::monostate, i64, f64, std::string, std::vector<u8>>;

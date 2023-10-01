@@ -3,7 +3,7 @@
 #include <sstream>
 #include "stmt.h"
 #include "helper.h"
-
+#include "../share.h"
 using namespace std;
 
 // close database
@@ -142,8 +142,8 @@ query4insert(std::string const &table_name, row_t fields) noexcept {
     vector<string> const placeholders(names.size(), "?");
     string query = format("INSERT INTO {} ({}) VALUES ({});",
                           table_name,
-                          join(names),
-                          join(placeholders));
+                          share::join_strings(names),
+                          share::join_strings(placeholders));
     return make_pair(std::move(query), std::move(values));
 }
 

@@ -1,5 +1,6 @@
 #include "row.h"
 #include <format>
+#include "../share.h"
 using namespace std;
 
 std::pair<std::vector<std::string>, std::vector<value_t>>
@@ -39,7 +40,7 @@ ostream& operator<<(ostream& s, field_t const& f) {
             s << get<3>(value);
             break;
         case 4:
-            s << '[' << bytes_as_string(get<4>(value)) << ']';
+            s << '[' << share::bytes_as_str(get<4>(value)) << ']';
     }
     s << ')';
     return s;
