@@ -1,6 +1,4 @@
-#ifndef BEESOFT_SQLITE_ROW
-#define BEESOFT_SQLITE_ROW
-
+#pragma once
 #include <vector>
 #include <string>
 #include <optional>
@@ -67,5 +65,3 @@ public:
 
 std::ostream &operator<<(std::ostream &s, field_t const &f);
 
-
-#endif // BEESOFT_SQLITE_ROW

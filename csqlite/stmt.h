@@ -1,6 +1,4 @@
-#ifndef BEESOFT_SQLITE_STMT
-#define BEESOFT_SQLITE_STMT
-
+#pragma once
 #include "helper.h"
 #include "amalgamation/sqlite3.h"
 #include "result.h"
@@ -16,6 +14,3 @@ public:
     std::optional<result_t> select(std::string const& query, std::vector<value_t> args = {}) noexcept;
 
 };
-
-
-#endif // BEESOFT_SQLITE_STMT

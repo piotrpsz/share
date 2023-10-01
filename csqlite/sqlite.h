@@ -1,6 +1,4 @@
-#ifndef BEESOFT_SQLITE
-#define BEESOFT_SQLITE
-
+#pragma once
 #include <array>
 #include <string>
 #include <functional>
@@ -99,4 +97,3 @@ query4insert(std::string const &table_name, row_t fields) noexcept;
 std::pair<std::string, std::vector<value_t>>
 query4update(std::string const &table_name, row_t fields, std::optional<field_t> where) noexcept;
 
-#endif

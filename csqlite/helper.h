@@ -1,6 +1,4 @@
-#ifndef BEESOFT_SQLITE_HELPER
-#define BEESOFT_SQLITE_HELPER
-
+#pragma once
 #include <string>
 #include <vector>
 #include <iostream>
@@ -35,4 +33,3 @@ inline static std::string join(std::vector<std::string> const &vec, std::string 
 
 std::string bytes_as_string(std::vector<u8> const& data) noexcept;
 
-#endif // BEESOFT_SQLITE_HELPER

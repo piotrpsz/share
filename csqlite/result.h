@@ -1,6 +1,4 @@
-#ifndef BEESOFT_SQLITE_RESULT
-#define BEESOFT_SQLITE_RESULT
-
+#pragma once
 #include "row.h"
 
 class result_t {
@@ -43,4 +41,3 @@ static inline std::ostream &operator<<(std::ostream& s, result_t const& result) 
     return s;
 }
 
-#endif // BEESOFT_SQLITE_RESULT
