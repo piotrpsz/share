@@ -10,10 +10,11 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_library(csqlite STATIC
-        sqlite.cpp
-        stmt.cpp
-        row.cpp
-        helper.cpp
+		sqlite.cpp sqlite.h
+		stmt.cpp stmt.h
+		row.cpp row.h
+		result.h
+		helper.cpp helper.h
         amalgamation/sqlite3.c
 )
 target_include_directories(csqlite PUBLIC
