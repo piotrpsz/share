@@ -17,11 +17,12 @@ add_library(share STATIC
         share.cpp share.h
 )
 target_link_libraries( share PUBLIC
-		csqlite
-		range-v3::meta range-v3::concepts range-v3::range-v3
+	csqlite
+	range-v3::meta range-v3::concepts range-v3::range-v3
 )
 
 target_include_directories(share PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
-		range-v3
+	${CMAKE_CURRENT_SOURCE_DIR}/csqlite
+	range-v3
 )
