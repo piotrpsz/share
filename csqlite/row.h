@@ -33,6 +33,9 @@ public:
     empty() const noexcept {
         return data_.empty();
     }
+    [[nodiscard]] size_t size() const noexcept {
+        return data_.size();
+    }
 
     auto emplace_back(std::string name, value_t value) {
         data_.emplace_back(std::move(name), std::move(value));
