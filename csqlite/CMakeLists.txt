@@ -13,9 +13,10 @@ add_library(csqlite STATIC
 		sqlite.cpp sqlite.h
 		stmt.cpp stmt.h
 		row.cpp row.h
-		result.h
+		result.cpp result.h
 		helper.cpp helper.h
         amalgamation/sqlite3.c
+		result.cpp
 )
 target_include_directories(csqlite PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
