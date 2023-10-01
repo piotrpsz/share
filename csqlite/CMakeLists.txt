@@ -10,5 +10,5 @@ add_library(csqlite STATIC
         amalgamation/sqlite3.c
 )
 target_include_directories(csqlite PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR/amalgamation})
+		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR/amalgamation})

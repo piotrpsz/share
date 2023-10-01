@@ -15,9 +15,9 @@ add_subdirectory(csqlite)
 add_library(share STATIC
         datime.cpp datime.h
         share.cpp share.h
-		csqlite
 )
 target_link_libraries( share PUBLIC
+		csqlite
 		range-v3::meta range-v3::concepts range-v3::range-v3
 )
 
