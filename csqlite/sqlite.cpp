@@ -151,8 +151,8 @@ std::string bytes_as_string(std::vector<u8> const& data) noexcept {
     if (data.empty()) return std::string{};
 
     stringstream ss;
-    auto const n = data.size() - 1;
-    auto i = 0;
+    size_t const n = data.size() - 1;
+    size_t i = 0;
 
     for (; i < n; i++)
         ss << "0x" << hex << setfill('0') << setw(2) << int(data[i]) << ", ";

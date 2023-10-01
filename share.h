@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -38,7 +39,7 @@ public:
     /// \return string bez wiodących białych znaków.
     static inline std::string trim_left(std::string s) noexcept {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), is_not_space));
-        return std::move(s);
+        return s;
     }
 
     /// Usunięcie zamykającyh (końcowych) białych znaków (z prawej strony).
@@ -46,7 +47,7 @@ public:
     /// \return string bez zamykających białych znaków.
     static inline std::string trim_right(std::string s) noexcept {
         s.erase(std::find_if(s.rbegin(), s.rend(), is_not_space).base(), s.end());
-        return std::move(s);
+        return s;
     }
 
     /// Usunięcie wiodących i zamykających białych znaków (z obu stron).
@@ -80,7 +81,7 @@ public:
         while (std::getline(stream, token, delimiter))
             if (auto str = trim(token); !str.empty())
                 tokens.push_back(str);
-        return std::move(tokens);
+        return tokens;
     }
 
     /// Tworzy string będący złączeniem stringów przysłanych w wektorze. \n
@@ -89,15 +90,14 @@ public:
     /// \param delimiter - znak wstawiany pomiędzy łączonymi stringami (domyślnie przecinek).
     /// \return String jako suma przysłanych stringów.
     static inline std::string join_strings(std::vector<std::string> data, char const delimiter = ',') noexcept {
-        return std::move(
-                std::accumulate(
-                        std::next(data.begin()),
-                        data.end(),
-                        data[0],
-                        [delimiter](std::string a, std::string b) {
-                            return std::format("{}{}{}", std::move(a), delimiter, std::move(b));
-                        }
-                ));
+        return std::accumulate(
+                std::next(data.begin()),
+                data.end(),
+                data[0],
+                [delimiter](std::string a, std::string b) {
+                    return std::format("{}{}{}", std::move(a), delimiter, std::move(b));
+                }
+        );
     }
 
     /// Zamiana tekstu na liczbę typu integer.
@@ -125,12 +125,12 @@ public:
         using namespace ranges;
         auto bytes_collection =
                 views::iota(0, n)
-                | views::transform([&](u8 i) {
+                | views::transform([&](u8) {
                     return static_cast<u8>(ud(mtgen));
                 })
                 | ranges::to<std::vector>();
 
-        return std::move(bytes_collection);
+        return bytes_collection;
     }
 
 
@@ -157,13 +157,13 @@ public:
     }
 
     template<typename Fn, typename... Args>
-    static inline std::string execution_timer(Fn fn, Args&&... args, unsigned n = 1000) {
+    static inline std::string execution_timer(Fn fn, Args &&... args, unsigned n = 1000) {
         auto start = std::chrono::steady_clock::now();
         for (auto i = 0; i < n; i++)
             fn(std::forward<Args>(args)...);
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> const elapsed = end - start;
-        return std::format("{}s", elapsed.count()/n);
+        return std::format("{}s", elapsed.count() / n);
     }
 };
 

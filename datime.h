@@ -101,7 +101,7 @@ public:
         auto const tm = std::localtime(&ts);
         dt_t const date{tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday};
         tm_t const time{tm->tm_hour, tm->tm_min, tm->tm_sec};
-        return std::move(std::make_pair(date, time));
+        return std::make_pair(date, time);
     }
 
     /// Zwaraca date i czas obiektu w lokalnej reprezentacji (uwzgędnia zone).

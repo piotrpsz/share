@@ -19,13 +19,13 @@ stmt_t::~stmt_t() {
     }
 }
 
-bool stmt_t::exec(std::string const& query, std::vector<value_t> args) noexcept {
+bool stmt_t::exec(string const& query, vector<value_t> args) noexcept {
     if (!args.empty()) {
         auto const placeholder_count = count_if(query.cbegin(), query.cend(), [](char const c) {
             return '?' == c;
         });
         auto const arg_count = args.size();
-        if (placeholder_count != arg_count) {
+        if (placeholder_count != i64(arg_count)) {
             cerr << "count of placeholders and arguments do not match ("
             << placeholder_count << ", " << arg_count << ")\n";
             return false;
