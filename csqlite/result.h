@@ -19,10 +19,8 @@ public:
     [[nodiscard]] bool empty() const noexcept {
         return data_.empty();
     }
-    [[nodiscard]]
-    size_t size() const noexcept {
-        return data_.size();
-    }
+    [[nodiscard]] size_t size() const noexcept;
+
     void push_back(row_t row) noexcept {
         data_.push_back(std::move(row));
     }
