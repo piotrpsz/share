@@ -1,5 +1,4 @@
 #pragma once
-
 #include <cstdint>
 #include <chrono>
 #include <ctime>
@@ -70,10 +69,17 @@ public:
         return !operator==(rhs);
     }
 
+    /// Wyznacza i zwraca liczbę sekund od początku epoki (1.01.1970).
+    /// \return liczba sekund od początku epoki.
+    [[nodiscard]] i64 timestamp() const noexcept {
+        auto const n = floor<chrono::seconds>(tp_).time_since_epoch().count();
+        return static_cast<i64>(n);
+    }
+
     /// Ustawienie czasu w istniejącym obiekcie.
     /// \remark Przekazany czas jest w LOCAL.
     /// \param tm - komponenty czasu (struktura tm_t).
-    void set_time(tm_t tm) noexcept {
+    [[maybe_unused]] void set_time(tm_t tm) noexcept {
         auto days = chrono::floor<chrono::days>(tp_);
         tp_ = days
               + chrono::hours{tm.h}
@@ -96,12 +102,33 @@ public:
     /// Zwraca komponenty daty i czasu (LOCAL).
     /// \return para(pair) struktur z danymi (dt_t i tm_t).
     [[nodiscard]] std::pair<dt_t, tm_t>
-    components() const noexcept {
+    components_local() const noexcept {
         auto const ts = timestamp();
         auto const tm = std::localtime(&ts);
         dt_t const date{tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday};
         tm_t const time{tm->tm_hour, tm->tm_min, tm->tm_sec};
-        return std::make_pair(date, time);
+        return {date, time};
+    }
+
+    /// Zwraca komponenty daty i czasu (bez jakichkolwiek konwersji).
+    /// \return para(pair) struktur z danymi (dt_t i tm_t).
+    [[nodiscard]] std::pair<dt_t, tm_t>
+    components() const noexcept {
+        auto const dp = chrono::floor<chrono::days>(tp_);
+
+        chrono::year_month_day const ymd{dp};
+        int const year{ymd.year()};
+        int const month = int(unsigned(ymd.month()));
+        int const day = int(unsigned(ymd.day()));
+        dt_t const dt{year, month, day};
+
+        chrono::hh_mm_ss const hms{tp_ - dp};
+        auto const hour = static_cast<int>(hms.hours().count());
+        auto const min = static_cast<int>(hms.minutes().count());
+        auto const sec = static_cast<int>(hms.seconds().count());
+        tm_t const tm{hour, min, sec};
+
+        return {dt, tm};
     }
 
     /// Zwaraca date i czas obiektu w lokalnej reprezentacji (uwzgędnia zone).
@@ -156,28 +183,23 @@ public:
         return std::format("{}", chrono::floor<chrono::seconds>(tp_));
     }
 
-    /// Wyznacza i zwraca liczbę sekund od początku epoki (1.01.1970).
-    /// \return liczba sekund od początku epoki.
-    [[nodiscard]] i64 timestamp() const noexcept {
-        auto const n = floor<chrono::seconds>(tp_).time_since_epoch().count();
-        return static_cast<i64>(n);
-    }
+
 
 private:
     /// Podział tekstu daty i wyznaczenie jej liczbowych wartości.
     /// \param text - string z tekstową reprezentacją daty (np. "2023-09-28").
     /// \return opcjonalne(optional) trzy(tuple) składowe daty (year, month, day) jako liczby.
-    static std::optional<date_components_t> split_date(std::string const &text) noexcept;
+    std::optional<date_components_t> split_date(std::string const &text) noexcept;
 
     /// Podział tekstu czasu i wyznaczenie jego numerycznych wartości.
     /// \param text - string z tekstową reprezentacją czasu (np. "10:21:59")
     /// \return opcjonalny(optional) trzy(tuple) składowe czasu (hour, min, sec) jako liczby .
-    static std::optional<time_components_t> split_time(std::string const &text) noexcept;
+    std::optional<time_components_t> split_time(std::string const &text) noexcept;
 
     /// Podział stringu zawierającego datę i czas na stringi daty i czasu.
     /// \param text - tekst do podziału
     /// \return opcjonalna(optional) para(pair) stringów dla daty i czasu.
-    static std::optional<std::pair<std::string, std::string>>
+    std::optional<std::pair<std::string, std::string>>
     split_date_time(std::string const &text) noexcept;
 
     /// Wyznaczenie czasu UTC jako liczby sekund od początki epoki.
