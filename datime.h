@@ -20,7 +20,6 @@ struct tm_t {
 
 namespace chr = std::chrono;
 using tp_sec_t = std::chrono::time_point<std::chrono::local_t, std::chrono::seconds>;
-using tp_day_t = std::chrono::time_point<std::chrono::local_t, std::chrono::days>;
 using uint = unsigned int;
 using date_components_t = std::tuple<int, int, int>;
 using time_components_t = std::tuple<int, int, int>;
