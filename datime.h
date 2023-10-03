@@ -65,6 +65,13 @@ public:
         return !operator==(rhs);
     }
 
+    bool operator<(datime_t const& rhs) const noexcept {
+        return tp_ < rhs.tp_;
+    }
+    bool operator>(datime_t const& rhs) const noexcept {
+        return tp_ > rhs.tp_;
+    }
+
     /// Wyznacza i zwraca liczbę sekund od początku epoki (1.01.1970).
     /// \return liczba sekund od początku epoki.
     [[nodiscard]] i64 timestamp() const noexcept {
