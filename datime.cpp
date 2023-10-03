@@ -9,10 +9,13 @@ datime_t::datime_t(std::string const &text) {
             if (auto tmc = split_time(time); tmc) {
                 auto [year, month, day] = std::move(dtc.value());
                 auto [hour, min, sec] = std::move(tmc.value());
-                auto const utc = utc_time_from_components(
+
+                auto const utc = tp_from_components(
                         {year, month, day},
                         {hour, min, sec});
-                tp_ = std::chrono::system_clock::from_time_t(utc);
+                tp_ = utc;
+//                tp_ = std::chrono::system_clock::from_time_t(utc);
+//                    tp_ = tms2tp(utc);
             }
         }
     }
