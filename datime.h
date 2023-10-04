@@ -112,6 +112,14 @@ public:
         tp_ = days + chr::hours{0} + chr::minutes{0} + chr::seconds{0};
         return *this;
     }
+    [[maybe_unused]] datime_t&
+    beginning_day() noexcept {
+        return clear_time();
+    }
+    [[maybe_unused]] datime_t&
+    end_day() noexcept {
+        return set_time({23, 59, 59});
+    }
 
     /// Zwraca komponenty daty i czasu (LOCAL).
     /// \return para(pair) struktur z danymi (dt_t i tm_t).
