@@ -16,6 +16,22 @@ struct dt_t {
     bool operator==(dt_t const& rhs) const noexcept {
         return y == rhs.y && m == rhs.m && d == rhs.d;
     }
+    bool operator!=(dt_t const& rhs) const noexcept {
+        return !operator==(rhs);
+    }
+    bool operator<(dt_t const& rhs) const noexcept {
+        if (y < rhs.y) return true;
+        if (m < rhs.m) return true;
+        if (d < rhs.d) return true;
+        return false;
+    }
+    bool operator>(dt_t const& rhs) const noexcept {
+        if (y > rhs.y) return true;
+        if (m > rhs.m) return true;
+        if (d > rhs.d) return true;
+        return false;
+    }
+
 };
 struct tm_t {
     int h{}, m{}, s{};
