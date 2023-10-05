@@ -121,6 +121,24 @@ public:
         return set_time({23, 59, 59});
     }
 
+    [[nodiscard]] std::tuple<int, int, int>
+    date_compnents() const noexcept {
+        chr::year_month_day const ymd{chr::floor<chr::days>(tp_)};
+        auto year = static_cast<int>(ymd.year());
+        auto month = static_cast<int>(static_cast<uint>(ymd.month()));
+        auto day = static_cast<int>(static_cast<uint>(ymd.day()));
+        return {year, month, day};
+    }
+
+    [[nodiscard]] std::tuple<int, int, int>
+    time_compnents() const noexcept {
+        chr::hh_mm_ss const hms{tp_ - chr::floor<chr::days>(tp_)};
+        auto const hour = static_cast<int>(hms.hours().count());
+        auto const minutes = static_cast<int>(hms.minutes().count());
+        auto const seconds = static_cast<int>(hms.seconds().count());
+        return {hour, minutes, seconds};
+    }
+
     /// Zwraca komponenty daty i czasu (LOCAL).
     /// \return para(pair) struktur z danymi (dt_t i tm_t).
     [[nodiscard]] std::pair<dt_t, tm_t>
