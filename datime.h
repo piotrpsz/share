@@ -129,6 +129,10 @@ public:
         auto day = static_cast<int>(static_cast<uint>(ymd.day()));
         return {year, month, day};
     }
+    [[nodiscard]] bool
+    same_day(datime_t const& rhs) const noexcept {
+        return date_compnents() == rhs.date_compnents();
+    }
 
     [[nodiscard]] std::tuple<int, int, int>
     time_compnents() const noexcept {
