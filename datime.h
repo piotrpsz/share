@@ -91,10 +91,16 @@ public:
         return tp_ > rhs.tp_;
     }
 
+    [[nodiscard]] i64 minutes_from(datime_t const& rhs) const noexcept {
+        auto const a =  chr::floor<chr::minutes>(tp_);
+        auto const b = chr::floor<chr::minutes>(rhs.tp_);
+        return (b - a).count();
+    }
+
     /// Wyznacza i zwraca liczbę sekund od początku epoki (1.01.1970).
     /// \return liczba sekund od początku epoki.
     [[nodiscard]] i64 timestamp() const noexcept {
-        auto const n = floor<chr::seconds>(tp_).time_since_epoch().count();
+        auto const n = chr::floor<chr::seconds>(tp_).time_since_epoch().count();
         return static_cast<i64>(n);
     }
 
