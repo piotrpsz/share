@@ -157,6 +157,11 @@ public:
         return join_strings(components, ',');
     }
 
+    /// Funkcja opakowująca obiekt funkcyjny, dla której mierzymy czas wykonania.
+    /// \param fn - obiekt funkcyjny dla którego mierzymy czas wykonania,
+    /// \param args - parametry które należy przekazać do obiektu funkcyjnego,
+    /// \param n - liczba wywołań obiektu funkcyjnego (domyślnie 1000).
+    /// \return średni czas jednego wywołania obiektu funkcyjnego
     template<typename Fn, typename... Args>
     static inline std::string execution_timer(Fn fn, Args &&... args, unsigned n = 1000) {
         auto start = std::chrono::steady_clock::now();

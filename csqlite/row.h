@@ -2,31 +2,28 @@
 #include <vector>
 #include <string>
 #include <optional>
-#include <utility>
 #include <iterator>
-#include <cstddef>
 #include <variant>
 #include <iostream>
 #include "../share.h"
-#include "helper.h"
 
 using value_t = std::variant<std::monostate, i64, f64, std::string, std::vector<u8>>;
 using field_t = std::pair<std::string, value_t>;
+using names_t = std::vector<std::string>;
+using values_t = std::vector<value_t>;
 
-
-class row_t {
+class row_t final {
     std::vector<field_t> data_{};
 public:
-    row_t() = default;
-
     row_t(std::string name, value_t value) {
         data_.emplace_back(std::move(name), std::move(value));
     }
-
+    row_t() = default;
     row_t(row_t const &) = default;
     row_t &operator=(row_t const &) = default;
     row_t(row_t &&) = default;
     row_t &operator=(row_t &&) = default;
+    ~row_t() = default;
 
     [[nodiscard]] bool
     empty() const noexcept {
@@ -40,7 +37,7 @@ public:
         data_.emplace_back(std::move(name), std::move(value));
     }
 
-    row_t &add(std::string name, value_t value) noexcept {
+    row_t& add(std::string name, value_t value) noexcept {
         data_.emplace_back(std::move(name), std::move(value));
         return *this;
     }
@@ -52,7 +49,9 @@ public:
                : add(std::move(name), std::monostate());
     }
 
-    std::pair<std::vector<std::string>, std::vector<value_t>> split() noexcept;
+    /// Wektor par <nazwa, wartość> rozbijany na wektor nazw i wektor wartości
+    /// \return std-para wektorów (wektor nazw i wektor wartości).
+    [[nodiscard]] std::pair<names_t, values_t> split() const noexcept;
 
     using iterator = std::vector<field_t>::iterator;
     using const_iterator = std::vector<field_t>::const_iterator;

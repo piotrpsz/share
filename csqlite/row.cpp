@@ -1,25 +1,22 @@
 #include "row.h"
-#include <format>
-#include "../share.h"
 using namespace std;
 
-std::pair<std::vector<std::string>, std::vector<value_t>>
-row_t::split() noexcept {
-    if (data_.empty())
-        return make_pair(vector<string>{}, vector<value_t>{});
+pair<names_t, values_t>
+row_t::split() const noexcept {
+    names_t names{};
+    values_t values{};
 
-    auto const n = data_.size();
-    vector<string> names{};
-    vector<value_t> values{};
-    names.reserve(n);
-    values.reserve(n);
+    if (!data_.empty()) {
+        auto const n = data_.size();
+        names.reserve(n);
+        values.reserve(n);
 
-    for (auto [name, value] : data_) {
-        names.push_back(std::move(name));
-        values.push_back(std::move(value));
+        for (auto const& [name, value]: data_) {
+            names.push_back(name);
+            values.push_back(value);
+        }
     }
-
-    return make_pair(std::move(names), std::move(values));
+    return {std::move(names), std::move(values)};
 }
 
 ostream& operator<<(ostream& s, field_t const& f) {
