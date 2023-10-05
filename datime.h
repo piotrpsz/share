@@ -13,6 +13,9 @@ using i64 = int64_t;
 
 struct dt_t {
     int y, m, d;
+    bool operator==(dt_t const& rhs) const noexcept {
+        return y == rhs.y && m == rhs.m && d == rhs.d;
+    }
 };
 struct tm_t {
     int h{}, m{}, s{};
