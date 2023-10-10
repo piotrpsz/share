@@ -14,8 +14,6 @@ datime_t::datime_t(std::string const &text) {
                         {year, month, day},
                         {hour, min, sec});
                 tp_ = utc;
-//                tp_ = std::chrono::system_clock::from_time_t(utc);
-//                    tp_ = tms2tp(utc);
             }
         }
     }
@@ -32,30 +30,28 @@ datime_t datime_t::add_days(int const n) const noexcept {
     return datime_t{secs.time_since_epoch().count()};
 }
 
-optional<date_components_t> datime_t::split_date(std::string const &text) noexcept {
-    auto components = share::split(text, DATE_DELIMITER);
-    if (components.size() == 3)
-        if (int year; share::to_int(components[0], year))
-            if (int month; share::to_int(components[1], month))
-                if (int day; share::to_int(components[2], day))
-                    return std::move(make_tuple(year, month, day));
+optional<date_components_t> datime_t::split_date(std::string const& text) noexcept {
+    if (auto components = share::split(text, DATE_DELIMITER); components.size() == 3)
+        if (auto year = share::to_int(components[0]); year)
+            if (auto month = share::to_int(components[1]); month)
+                if (auto day = share::to_int(components[2]); day)
+                    return make_tuple(*year, *month, *day);
     return {};
 }
 
-optional<time_components_t> datime_t::split_time(std::string const &text) noexcept {
-    auto components = share::split(text, TIME_DELIMITER);
-    if (components.size() == 3)
-        if (int hour; share::to_int(components[0], hour))
-            if (int min; share::to_int(components[1], min))
-                if (int sec; share::to_int(components[2], sec))
-                    return std::move(make_tuple(hour, min, sec));
+optional<time_components_t> datime_t::split_time(std::string const& text) noexcept {
+    if (auto components = share::split(text, TIME_DELIMITER); components.size() == 3)
+        if (auto hour = share::to_int(components[0]); hour)
+            if (auto min = share::to_int(components[1]); min)
+                if (auto sec = share::to_int(components[2]); sec)
+                    return make_tuple(*hour, *min, *sec);
     return {};
 }
 
-optional<pair<string, string>> datime_t::split_date_time(std::string const &text) noexcept {
+optional<pair<string, string>> datime_t::split_date_time(std::string const& text) noexcept {
     auto components = share::split(text, DATE_TIME_DELIMITER);
     if (components.size() == 2)
-        return std::move(make_pair(std::move(components[0]), std::move(components[1])));
+        return make_pair(std::move(components[0]), std::move(components[1]));
     return {};
 }
 

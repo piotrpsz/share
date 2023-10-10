@@ -7,6 +7,7 @@
 #include <string>
 #include <optional>
 #include <iostream>
+#include <string_view>
 
 using u8 = uint8_t;
 using i64 = int64_t;
@@ -232,17 +233,17 @@ private:
     /// Podział tekstu daty i wyznaczenie jej liczbowych wartości.
     /// \param text - string z tekstową reprezentacją daty (np. "2023-09-28").
     /// \return opcjonalne(optional) trzy(tuple) składowe daty (year, month, day) jako liczby.
-    std::optional<date_components_t> split_date(std::string const &text) noexcept;
+    static std::optional<date_components_t> split_date(std::string const& text) noexcept;
 
     /// Podział tekstu czasu i wyznaczenie jego numerycznych wartości.
     /// \param text - string z tekstową reprezentacją czasu (np. "10:21:59")
     /// \return opcjonalny(optional) trzy(tuple) składowe czasu (hour, min, sec) jako liczby .
-    std::optional<time_components_t> split_time(std::string const &text) noexcept;
+    static std::optional<time_components_t> split_time(std::string const& text) noexcept;
 
     /// Podział stringu zawierającego datę i czas na stringi daty i czasu.
     /// \param text - tekst do podziału
     /// \return opcjonalna(optional) para(pair) stringów dla daty i czasu.
-    std::optional<std::pair<std::string, std::string>>
+    static std::optional<std::pair<std::string, std::string>>
     split_date_time(std::string const &text) noexcept;
 
     /// Wyznaczenie momentu w czasie (time-point) przysłanych komponentów daty i czasu.

@@ -25,7 +25,7 @@ target_link_libraries( share PUBLIC
 )
 
 target_include_directories(share PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/csqlite
-	${RANGE-V3-DIR}/include
+		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}/csqlite
+		${RANGE-V3-DIR}/include
 )

@@ -63,7 +63,7 @@ public:
     /// \param text - string do podziału,
     /// \param delimiter - znak sygnalizujący podział,
     /// \return Wektor stringów.
-    static std::vector<std::string> split(std::string const &text, char const delimiter) noexcept {
+    static std::vector<std::string> split(std::string const& text, char const delimiter) noexcept {
         // Lepiej policzyć delimitery niż później realokować wektor.
         auto const n = std::accumulate(
                 text.cbegin(),
@@ -106,10 +106,22 @@ public:
     /// \param v - referencja do zmiennej typu integer, do której zostanie przekazana wyznaczona wartość,
     /// \param base - system numeryczny użyty w tekście (domyślnie 10)
     /// \return true jeśli wszystko poszło dobrze, w przeciwnym przypadku false.
-    static bool to_int(std::string_view text, int &v, int base = 10) noexcept {
+    static std::optional<int> to_int(std::string_view text, int const base = 10) {
+        int v{};
         auto [ptr, err] = std::from_chars(text.data(), text.data() + text.size(), v, base);
-        return err == std::errc{};
+        if (err == std::errc{})
+            return v;
+        if (err == std::errc::invalid_argument)
+            std::cerr << "This is not a number (" << text << ").\n";
+        else if (err == std::errc::result_out_of_range)
+            std::cout << "This number is larger than an int (" << text << ").\n";
+        return {};
     }
+
+//    static bool to_int(std::string_view text, int &v, int base = 10) noexcept {
+//        auto [ptr, err] = std::from_chars(text.data(), text.data() + text.size(), v, base);
+//        return err == std::errc{};
+//    }
 
     /// Utworzenie wektora losowych bajtów.
     /// \param n - oczekiwana liczba bajtów.
