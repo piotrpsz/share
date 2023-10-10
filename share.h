@@ -169,6 +169,12 @@ public:
         return join_strings(components, ',');
     }
 
+    static std::vector<char> str2vec(std::string_view text) noexcept {
+        return text
+            | ranges::views::transform([](char c) { return c; })
+            | ranges::to<std::vector>();
+    }
+
     /// Funkcja opakowująca obiekt funkcyjny, dla której mierzymy czas wykonania.
     /// \param fn - obiekt funkcyjny dla którego mierzymy czas wykonania,
     /// \param args - parametry które należy przekazać do obiektu funkcyjnego,
