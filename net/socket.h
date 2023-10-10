@@ -42,7 +42,7 @@ public:
 
     bool read_bytes(void* buffer, u32 nbytes) const noexcept;
     bool write_bytes(void const* buffer, u32 nbytes) const noexcept;
-    [[nodiscard]] std::string perr_address() const noexcept;
+    [[nodiscard]] std::string peer_address() const noexcept;
 private:
     static bool setopt(SOCKET const fd, int const option, int flag) noexcept {
         return ::setsockopt(fd, SOL_SOCKET, option, (char*)&flag, sizeof(flag));

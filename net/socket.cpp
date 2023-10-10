@@ -50,7 +50,7 @@ bool socket_t::bind_to(int const port) const noexcept {
 }
 
 /// Odczyt adresu IP (+ port) hosta z drugiej strony łącza.
-std::string socket_t::perr_address() const noexcept {
+std::string socket_t::peer_address() const noexcept {
     struct sockaddr_in addr{};
     auto n = static_cast<int>(sizeof(addr));
     if (::getpeername(fd_, (sockaddr*)&addr, &n) == 0) {
