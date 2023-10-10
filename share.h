@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
+#include <span>
 #include <vector>
 #include <array>
 #include <format>
@@ -63,7 +65,7 @@ public:
     /// \param text - string do podziału,
     /// \param delimiter - znak sygnalizujący podział,
     /// \return Wektor stringów.
-    static std::vector<std::string> split(std::string const& text, char const delimiter) noexcept {
+    static std::vector<std::string> split(std::string const &text, char const delimiter) noexcept {
         // Lepiej policzyć delimitery niż później realokować wektor.
         auto const n = std::accumulate(
                 text.cbegin(),
@@ -106,22 +108,20 @@ public:
     /// \param v - referencja do zmiennej typu integer, do której zostanie przekazana wyznaczona wartość,
     /// \param base - system numeryczny użyty w tekście (domyślnie 10)
     /// \return true jeśli wszystko poszło dobrze, w przeciwnym przypadku false.
-    static std::optional<int> to_int(std::string_view text, int const base = 10) {
+    static std::optional<int>
+    to_int(std::string_view text, int const base = 10) {
         int v{};
-        auto [ptr, err] = std::from_chars(text.data(), text.data() + text.size(), v, base);
+        auto&& [ptr, err] = std::from_chars(text.data(), text.data() + text.size(), v, base);
+
         if (err == std::errc{})
             return v;
+
         if (err == std::errc::invalid_argument)
-            std::cerr << "This is not a number (" << text << ").\n";
+            std::cerr << std::format("This is not a number ({}).\n", text);
         else if (err == std::errc::result_out_of_range)
-            std::cout << "This number is larger than an int (" << text << ").\n";
+            std::cout << std::format("This number is larger than an int ({}).\n", text);
         return {};
     }
-
-//    static bool to_int(std::string_view text, int &v, int base = 10) noexcept {
-//        auto [ptr, err] = std::from_chars(text.data(), text.data() + text.size(), v, base);
-//        return err == std::errc{};
-//    }
 
     /// Utworzenie wektora losowych bajtów.
     /// \param n - oczekiwana liczba bajtów.
@@ -135,45 +135,45 @@ public:
         auto mtgen = std::mt19937{seq};
         auto ud = std::uniform_int_distribution<>{0, 255};
 
-        using namespace ranges;
-        auto bytes_collection =
-                views::iota(0, n)
-                | views::transform([&](u8) {
-                    return static_cast<u8>(ud(mtgen));
-                })
-                | ranges::to<std::vector>();
-
-        return bytes_collection;
+        return ranges::views::iota(0, n)
+            | ranges::views::transform([&](u8) { return static_cast<u8>(ud(mtgen)); })
+            | ranges::to<std::vector>();
     }
 
 
     /// Utworzenie reprezentacji tekstowej bajtów (HEX | DEC).
-    /// \param wektor bajtów
-    /// \param format wyświetlania bajtów (HEX | DEC), domyślnie HEX
+    /// \param data - wektor bajtów
+    /// \param format format prezentacji bajtów - HEX | DEC - domyślnie HEX
     /// \return string z bajtami
-    static std::string bytes_as_str(std::vector<u8> const &data, BytesFormat const fmt = BytesFormat::HEX) noexcept {
-        using namespace ranges::views;
-
-        if (fmt == BytesFormat::HEX) {
-            auto const components =
-                    data
-                    | transform([](u8 v) { return std::format("0x{:02x}", v); })
-                    | ranges::to<std::vector>();
-            return join_strings(components, ',');
-        }
-
-        auto const components =
-                data
-                | transform([](u8 v) { return std::format("{}", v); })
+    static std::string
+    bytes_as_str(std::vector<u8> const &data, BytesFormat const fmt = BytesFormat::HEX) noexcept {
+        auto const formatter = [fmt] (u8 c) {
+            return (fmt == BytesFormat::HEX)
+                ? std::format("0x{:02x}", c)
+                : std::format("{}", c);
+        };
+        auto const components = data
+                | ranges::views::transform([formatter](u8 c) { return formatter(c); })
                 | ranges::to<std::vector>();
         return join_strings(components, ',');
     }
 
-    static std::vector<char> str2vec(std::string_view text) noexcept {
+    /// Konwersja tekstu na wektor.
+    static std::vector<char>
+    str2vec(std::string_view text) noexcept {
         return text
             | ranges::views::transform([](char c) { return c; })
             | ranges::to<std::vector>();
     }
+
+    /// Konwersja wektora na tekst,
+    static std::string
+    vec2str(std::span<char> vec) noexcept {
+        return vec
+            | ranges::views::transform([](char c) { return c; })
+            | ranges::to<std::string>();
+    }
+
 
     /// Funkcja opakowująca obiekt funkcyjny, dla której mierzymy czas wykonania.
     /// \param fn - obiekt funkcyjny dla którego mierzymy czas wykonania,
@@ -181,7 +181,8 @@ public:
     /// \param n - liczba wywołań obiektu funkcyjnego (domyślnie 1000).
     /// \return średni czas jednego wywołania obiektu funkcyjnego
     template<typename Fn, typename... Args>
-    static inline std::string execution_timer(Fn fn, Args &&... args, unsigned n = 1000) {
+    static inline std::string
+    execution_timer(Fn fn, Args &&... args, unsigned n = 1000) {
         auto start = std::chrono::steady_clock::now();
         for (auto i = 0; i < n; i++)
             fn(std::forward<Args>(args)...);
@@ -190,6 +191,3 @@ public:
         return std::format("{}s", elapsed.count() / n);
     }
 };
-
-
-
