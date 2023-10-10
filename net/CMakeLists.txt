@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(share)
+project(net)
 
 set(CMAKE_CXX_STANDARD 20)
 if (NOT CMAKE_BUILD_TYPE)
@@ -12,22 +12,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(RANGE-V3-DIR "C:/Users/user/vcpkg/installed/x64-windows")
 find_package(range-v3 PATHS "${RANGE-V3-DIR}/share/range-v3")
 
-add_subdirectory(csqlite)
-add_subdirectory(net)
-
-add_library(share STATIC
-		datime.cpp datime.h
-        share.cpp share.h
+add_library(net STATIC
+		socket.cpp socket.h
+		message.cpp message.h
 )
-target_link_libraries(share PUBLIC
-		net
-		csqlite
-		range-v3::meta range-v3::concepts range-v3::range-v3
-)
-
-target_include_directories(share PUBLIC
+target_include_directories(net PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
-		${CMAKE_CURRENT_SOURCE_DIR}/csqlite
-		${CMAKE_CURRENT_SOURCE_DIR}/net
 		${RANGE-V3-DIR}/include
 )
