@@ -45,7 +45,7 @@ public:
     [[nodiscard]] std::string peer_address() const noexcept;
 private:
     static bool setopt(SOCKET const fd, int const option, int flag) noexcept {
-        return ::setsockopt(fd, SOL_SOCKET, option, (char*)&flag, sizeof(flag));
+        return ::setsockopt(fd, SOL_SOCKET, option, (char*)&flag, sizeof(flag)) == 0;
     }
 
 };

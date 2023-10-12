@@ -2,19 +2,20 @@
 #include <iostream>
 #include <format>
 
+/// Utworzenie nowego gniazda TCP/IP.
 socket_t::socket_t() {
     if (auto retv = WSAStartup(MAKEWORD(2, 2), &wsa_data_); retv != 0) {
         std::cerr << std::format("WSAStartup failed: {}",  retv) << '\n';
         return;
     }
-    auto const fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (fd == INVALID_SOCKET) {
-        std::cerr << std::format("Error at socket: {}",  WSAGetLastError()) << '\n';
-        return;
-    }
-    if (socket_t::setopt(fd, SO_REUSEADDR, 1))
-        if (socket_t::setopt(fd, SO_KEEPALIVE, 1))
-            fd_ = static_cast<int>(fd);
+    if (auto const fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); fd != INVALID_SOCKET)
+        if (socket_t::setopt(fd, SO_REUSEADDR, 1))
+            if (socket_t::setopt(fd, SO_KEEPALIVE, 1)) {
+                fd_ = static_cast<int>(fd);
+                return;
+            }
+
+    std::cerr << std::format("Error at socket: {}",  WSAGetLastError()) << '\n';
 }
 
 /// Połączenie z serwerem pod wskazanym adresem IP na wskazanym porcie.
