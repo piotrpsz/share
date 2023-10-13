@@ -6,13 +6,16 @@
 #include <span>
 #include <vector>
 #include <array>
-#include <format>
 #include <random>
 #include <sstream>
 #include <chrono>
 #include <iostream>
 #include <range/v3/all.hpp>
-
+#ifdef __APPLE__
+    #include <fmt/core.h>
+#else
+    #include <format>
+#endif
 
 using u8 = uint8_t;
 using u32 = uint32_t;
@@ -98,9 +101,13 @@ public:
                 data.end(),
                 data[0],
                 [delimiter](std::string a, std::string b) {
-                    return std::format("{}{}{}", std::move(a), delimiter, std::move(b));
+                    return fmt::format("{}{}{}", std::move(a), delimiter, std::move(b));
                 }
         );
+    }
+
+    static std::string as_string(std::string_view sv) noexcept {
+        return {sv.data(), sv.size()};
     }
 
     /// Zamiana tekstu na liczbę typu integer.
@@ -110,6 +117,18 @@ public:
     /// \return true jeśli wszystko poszło dobrze, w przeciwnym przypadku false.
     static std::optional<int>
     to_int(std::string_view text, int const base = 10) {
+#ifdef __APPLE__
+        try {
+            return std::stoi(share::as_string(text), nullptr, base);
+        }
+        catch (std::invalid_argument const& exp) {
+            std::cerr << fmt::format("This is not a number ({}).\n", exp.what());
+        }
+        catch (std::out_of_range const& exp) {
+            std::cout << fmt::format("This number is larger than an int ({}).\n", exp.what());
+        }
+        return {};
+#else
         int v{};
         auto&& [ptr, err] = std::from_chars(text.data(), text.data() + text.size(), v, base);
 
@@ -121,6 +140,7 @@ public:
         else if (err == std::errc::result_out_of_range)
             std::cout << std::format("This number is larger than an int ({}).\n", text);
         return {};
+#endif
     }
 
     /// Utworzenie wektora losowych bajtów.
@@ -149,8 +169,8 @@ public:
     bytes_as_str(std::vector<u8> const &data, BytesFormat const fmt = BytesFormat::HEX) noexcept {
         auto const formatter = [fmt] (u8 c) {
             return (fmt == BytesFormat::HEX)
-                ? std::format("0x{:02x}", c)
-                : std::format("{}", c);
+                ? fmt::format("0x{:02x}", c)
+                : fmt::format("{}", c);
         };
         auto const components = data
                 | ranges::views::transform([formatter](u8 c) { return formatter(c); })
@@ -184,10 +204,10 @@ public:
     static inline std::string
     execution_timer(Fn fn, Args &&... args, unsigned n = 1000) {
         auto start = std::chrono::steady_clock::now();
-        for (auto i = 0; i < n; i++)
+        for (unsigned i = 0; i < n; i++)
             fn(std::forward<Args>(args)...);
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> const elapsed = end - start;
-        return std::format("{}s", elapsed.count() / n);
+        return fmt::format("{}s", elapsed.count() / n);
     }
 };
