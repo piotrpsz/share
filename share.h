@@ -11,11 +11,12 @@
 #include <chrono>
 #include <iostream>
 #include <range/v3/all.hpp>
-#ifdef __APPLE__
-    #include <fmt/core.h>
-#else
-    #include <format>
-#endif
+#include <fmt/core.h>
+//#ifdef __APPLE__
+//    #include <fmt/core.h>
+//#else
+//    #include <format>
+//#endif
 
 using u8 = uint8_t;
 using u32 = uint32_t;
@@ -101,7 +102,8 @@ public:
                 data.end(),
                 data[0],
                 [delimiter](std::string a, std::string b) {
-                    return fmt::format("{}{}{}", std::move(a), delimiter, std::move(b));
+                    return a + delimiter + b;
+//                    fmt::format("{}{}{}", std::move(a), delimiter, std::move(b));
                 }
         );
     }
