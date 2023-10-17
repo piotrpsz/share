@@ -9,8 +9,12 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-set(RANGE-V3-DIR "C:/Users/user/vcpkg/installed/x64-windows")
-find_package(range-v3 PATHS "${RANGE-V3-DIR}/share/range-v3")
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	find_package(range-v3 REQUIRED)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	set(RANGE-V3-DIR "C:/Users/user/vcpkg/installed/x64-windows")
+	find_package(range-v3 PATHS "${RANGE-V3-DIR}/share/range-v3")
+endif ()
 
 add_library(csqlite STATIC
 		sqlite.cpp sqlite.h
@@ -21,8 +25,15 @@ add_library(csqlite STATIC
         amalgamation/sqlite3.c
 		result.cpp
 )
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	target_link_libraries(csqlite PUBLIC
+			range-v3::meta range-v3::concepts range-v3::range-v3
+	)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 target_include_directories(csqlite PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
 		${RANGE-V3-DIR}/include
 		${CMAKE_CURRENT_SOURCE_DIR/amalgamation}
 )
+endif ()

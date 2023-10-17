@@ -124,11 +124,15 @@ query4update(string const &table_name, row_t fields, optional<field_t> where) no
     }
     placeholders << *it << "=?";
 
-    string query = format("UPDATE {} SET {}", table_name, placeholders.str());
+    stringstream ss{};
+    ss << "UPDATE " << table_name << " SET " << placeholders.str();
+    string query = ss.str();
 
     if (where) {
         auto const [name, value] = *where;
-        query += format(" WHERE {}=?", name);
+        stringstream ss{};
+        ss << " WHERE " << name << "=?";
+        query += ss.str();
         values.push_back(value);
     }
     query += ";";
@@ -140,11 +144,14 @@ std::pair<std::string, std::vector<value_t>>
 query4insert(std::string const &table_name, row_t fields) noexcept {
     auto [names, values] = fields.split();
     vector<string> const placeholders(names.size(), "?");
-    string query = format("INSERT INTO {} ({}) VALUES ({});",
-                          table_name,
-                          share::join_strings(names),
-                          share::join_strings(placeholders));
-    return make_pair(std::move(query), std::move(values));
+    stringstream ss{};
+    ss << "INSERT INTO " << table_name
+        << '(' << share::join_strings(names) << ')'
+        << " VALUES "
+        << '(' << share::join_strings(placeholders) << ')'
+        << ';';
+
+    return make_pair(ss.str(), std::move(values));
 }
 
 std::string bytes_as_string(std::vector<u8> const& data) noexcept {
