@@ -99,7 +99,7 @@ join_strings(std::vector<std::string> const& data, char const delimiter) noexcep
 std::optional<int> share::
 to_int(std::string_view text, int const base) {
     try {
-        return std::stoi(share::as_string(text), nullptr, base);
+        return std::stoi(share::strview2str(text), nullptr, base);
     }
     catch (std::invalid_argument const& exp) {
         std::cerr << fmt::format("This is not a number ({}).\n", exp.what());
