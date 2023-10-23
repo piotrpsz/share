@@ -13,8 +13,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 	find_package(date REQUIRED)
 	find_package(range-v3 REQUIRED)
-	find_package(TBB REQUIRED)
+	find_package(tbb REQUIRED)
 	find_package(fmt REQUIRED)
+	message("--------------------------------------------------------------")
+	message("range-v3: ${range-v3_DIR}")
+	message("     fmt: ${fmt_DIR}")
+	message("    date: ${date_DIR}")
+	message("     tbb: ${tbb_DIR}")
+	message("--------------------------------------------------------------")
 
 	add_subdirectory(csqlite)
 
@@ -28,7 +34,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 			date
 	)
 	target_link_libraries(share PUBLIC
-			csqlite.a
+			csqlite
 			TBB::tbb TBB::tbbmalloc TBB::tbbmalloc_proxy
 			range-v3::meta range-v3::concepts range-v3::range-v3
 			fmt
