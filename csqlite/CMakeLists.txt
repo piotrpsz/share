@@ -24,6 +24,8 @@ add_library(csqlite STATIC
 		helper.cpp helper.h
         amalgamation/sqlite3.c
 		result.cpp
+		value.h
+		query.h
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")

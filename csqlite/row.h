@@ -5,10 +5,10 @@
 #include <iterator>
 #include <variant>
 #include <iostream>
+#include "value.h"
+#include "field.h"
 #include "../share.h"
 
-using value_t = std::variant<std::monostate, i64, f64, std::string, std::vector<u8>>;
-using field_t = std::pair<std::string, value_t>;
 using names_t = std::vector<std::string>;
 using values_t = std::vector<value_t>;
 
@@ -36,9 +36,12 @@ public:
     auto emplace_back(std::string name, value_t value) {
         data_.emplace_back(std::move(name), std::move(value));
     }
-
     row_t& add(std::string name, value_t value) noexcept {
         data_.emplace_back(std::move(name), std::move(value));
+        return *this;
+    }
+    row_t& add(std::string name) {
+        data_.emplace_back(std::move(name));
         return *this;
     }
 
@@ -46,7 +49,7 @@ public:
     row_t &add(std::string name, std::optional<T> value) noexcept {
         return (value)
                ? add(std::move(name), std::move(*value))
-               : add(std::move(name), std::monostate());
+               : add(std::move(name));
     }
 
     /// Wektor par <nazwa, wartość> rozbijany na wektor nazw i wektor wartości
@@ -61,6 +64,7 @@ public:
     const_iterator cend() const { return data_.cend(); }
 
     friend std::ostream &operator<<(std::ostream &s, row_t const &r);
+    friend class field_t;
 };
 
 std::ostream &operator<<(std::ostream &s, field_t const &f);

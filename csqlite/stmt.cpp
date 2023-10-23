@@ -2,6 +2,7 @@
 #include "row.h"
 #include <utility>
 #include <algorithm>
+#include <variant>
 using namespace std;
 
 // forward declarations
@@ -79,7 +80,7 @@ row_t fetch_row_data(sqlite3_stmt* const stmt, int const column_count) noexcept 
         string name{sqlite3_column_name(stmt, i)};
         switch (sqlite3_column_type(stmt, i)) {
             case SQLITE_NULL:
-                row.emplace_back(std::move(name), monostate());
+                row.emplace_back(std::move(name), {});
                 break;
             case SQLITE_INTEGER:
                 row.emplace_back(std::move(name), sqlite3_column_int64(stmt, i));
@@ -118,15 +119,15 @@ bool bind_at(sqlite3_stmt* const stmt, int const idx, value_t v) noexcept {
         case 0:
             return SQLITE_OK == sqlite3_bind_null(stmt, idx);
         case 1:
-            return SQLITE_OK == sqlite3_bind_int64(stmt, idx, get<1>(v));
+            return SQLITE_OK == sqlite3_bind_int64(stmt, idx, v.int64());
         case 2:
-            return SQLITE_OK == sqlite3_bind_double(stmt, idx, get<2>(v));
+            return SQLITE_OK == sqlite3_bind_double(stmt, idx, v.float64());
         case 3: {
-            auto const text{ std::move(get<3>(v)) };
+            auto const text{ v.str() };
             return SQLITE_OK == sqlite3_bind_text(stmt, idx, text.c_str(), -1, SQLITE_TRANSIENT);
         }
         case 4: {
-            auto const vec{ std::move(get<4>(v))};
+            auto const vec{ v.vec() };
             auto const n{ static_cast<int>(vec.size())};
             return SQLITE_OK == sqlite3_bind_blob(stmt, idx, vec.data(), n, SQLITE_TRANSIENT);
         }

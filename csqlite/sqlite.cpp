@@ -129,7 +129,8 @@ query4update(string const &table_name, row_t fields, optional<field_t> where) no
     string query = ss.str();
 
     if (where) {
-        auto const [name, value] = *where;
+        auto f = *where;
+        auto const [name, value] = f();
         stringstream ss{};
         ss << " WHERE " << name << "=?";
         query += ss.str();

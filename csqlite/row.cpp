@@ -11,7 +11,8 @@ row_t::split() const noexcept {
         names.reserve(n);
         values.reserve(n);
 
-        for (auto const& [name, value]: data_) {
+        for (auto const& f: data_) {
+            auto const& [name, value] = f();
             names.push_back(name);
             values.push_back(value);
         }
@@ -20,24 +21,24 @@ row_t::split() const noexcept {
 }
 
 ostream& operator<<(ostream& s, field_t const& f) {
-    auto const& [name, value] = f;
+    auto const& [name, value] = f();
 
     s << name << ":(";
     switch (value.index()) {
-        case 0:
+        case MONOSTATE_INDEX:
             s << "NULL";
             break;
-        case 1:
-            s << get<1>(value);
+        case INTEGER_INDEX:
+            s << value.int64();
             break;
-        case 2:
-            s << get<2>(value);
+        case DOUBLE_INDEX:
+            s << value.float64();
             break;
-        case 3:
-            s << get<3>(value);
+        case STRING_INDEX:
+            s << value.str();
             break;
-        case 4:
-            s << '[' << share::bytes_as_str(get<4>(value)) << ']';
+        case VECTOR_INDEX:
+            s << '[' << share::bytes_as_str(value.vec()) << ']';
     }
     s << ')';
     return s;
