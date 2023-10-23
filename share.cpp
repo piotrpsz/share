@@ -1,4 +1,11 @@
 #include "share.h"
+//#include <array>
+#include <random>
+#include <sstream>
+#include <iostream>
+#include <charconv>
+#include <range/v3/all.hpp>
+#include <fmt/core.h>
 
 /// Zamienia ciąg bajtów typu 'u8' na string.
 /// \param data - widok na ciągły zbór bajtów.
@@ -44,6 +51,33 @@ trim_right(std::string s) noexcept {
 std::string share::
 trim(std::string s) noexcept {
     return trim_left(trim_right(std::move(s)));
+}
+
+std::vector<std::string> share::
+split_view(std::string_view sv, char const delimiter) noexcept {
+    // Lepiej policzyć delimitery niż później realokować wektor.
+    auto const n = std::accumulate(
+            sv.cbegin(),
+            sv.cend(),
+            ssize_t {0},
+            [delimiter](ssize_t const count, char const c) {
+                return (c == delimiter) ? count + 1 : count;
+            }
+    );
+
+    std::vector<std::string> tokens{};
+    tokens.reserve(n + 1);
+
+    auto pos = sv.find(delimiter);
+    while (pos != std::string_view::npos) {
+        tokens.push_back(trim({sv.data(), sv.data() + pos}));
+        sv.remove_prefix(pos + 1);
+        pos = sv.find(delimiter);
+    }
+    if (sv.data() != sv.end())
+        tokens.push_back(trim({sv.data(), sv.end()}));
+
+    return tokens;
 }
 
 /// Podział przysłanego stringa na wektor stringów. \n
@@ -97,16 +131,19 @@ join_strings(std::vector<std::string> const& data, char const delimiter) noexcep
 /// \param base - system numeryczny użyty w tekście (domyślnie 10)
 /// \return true jeśli wszystko poszło dobrze, w przeciwnym przypadku false.
 std::optional<int> share::
-to_int(std::string_view text, int const base) {
-    try {
-        return std::stoi(share::strview2str(text), nullptr, base);
-    }
-    catch (std::invalid_argument const& exp) {
-        std::cerr << fmt::format("This is not a number ({}).\n", exp.what());
-    }
-    catch (std::out_of_range const& exp) {
-        std::cout << fmt::format("This number is larger than an int ({}).\n", exp.what());
-    }
+to_int(std::string_view sv, int const base) {
+    int value{};
+    auto [_, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), value, base);
+
+    // Konwersja się udała.
+    if (ec == std::errc{})
+        return value;
+
+    // Coś poszło nie tak.
+    if (ec == std::errc::invalid_argument)
+        std::cerr << fmt::format("This is not a number ({}).\n", sv);
+    else if (ec == std::errc::result_out_of_range)
+        std::cerr << fmt::format("The number is to big ({}).\n", sv);
     return {};
 }
 

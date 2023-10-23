@@ -1,15 +1,10 @@
 #pragma once
 #include <cstdint>
+#include <filesystem>
+#include <vector>
 #include <string>
 #include <string_view>
 #include <span>
-#include <vector>
-#include <array>
-#include <random>
-#include <sstream>
-#include <chrono>
-#include <iostream>
-#include <range/v3/all.hpp>
 #include <fmt/core.h>
 
 using u8 = uint8_t;
@@ -58,7 +53,8 @@ public:
     /// \param text - string do podziału,
     /// \param delimiter - znak sygnalizujący podział,
     /// \return Wektor stringów.
-    static std::vector<std::string> split(std::string const &text, char const delimiter) noexcept;
+    static std::vector<std::string> split(std::string const& text, char const delimiter) noexcept;
+    static std::vector<std::string> split_view(std::string_view text, char const delimiter) noexcept;
 
     /// Tworzy string będący złączeniem stringów przysłanych w wektorze. \n
     /// Łączone stringi rozdzielone są przysłanym delimiter'em.
