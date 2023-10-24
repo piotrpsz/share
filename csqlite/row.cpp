@@ -20,36 +20,16 @@ row_t::split() const noexcept {
     return {std::move(names), std::move(values)};
 }
 
-ostream& operator<<(ostream& s, field_t const& f) {
-    auto const& [name, value] = f();
+std::string row_t::as_str() const noexcept {
+    vector<string> buffer;
+    buffer.reserve(data_.size());
+    for (auto const& f : data_)
+        buffer.push_back(f.as_str());
 
-    s << name << ":(";
-    switch (value.index()) {
-        case MONOSTATE_INDEX:
-            s << "NULL";
-            break;
-        case INTEGER_INDEX:
-            s << value.int64();
-            break;
-        case DOUBLE_INDEX:
-            s << value.float64();
-            break;
-        case STRING_INDEX:
-            s << value.str();
-            break;
-        case VECTOR_INDEX:
-            s << '[' << share::bytes_as_str(value.vec()) << ']';
-    }
-    s << ')';
-    return s;
+    return share::join_strings(buffer, ',');
 }
 
 ostream& operator<<(ostream& s, row_t const& r) {
-    auto const prev = std::prev(r.cend());
-    auto it = r.cbegin();
-    for (; it != prev; )
-        s << *it++ << ", ";
-    s << *it;
-
+    s << r.as_str();
     return s;
 }

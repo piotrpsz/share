@@ -5,10 +5,10 @@
 #include <utility>
 #include <initializer_list>
 #include <filesystem>
+#include <source_location>
 #include "amalgamation/sqlite3.h"
 #include "../share.h"
 #include "result.h"
-#include "helper.h"
 #include "row.h"
 #include "result.h"
 
@@ -93,6 +93,17 @@ private:
         return sqlite3_errcode(db_);
     }
 };
+
+inline static void LOG_ERROR(sqlite3* const db, std::source_location sl = std::source_location::current()) {
+    auto const str = fmt::format("SQLite Error: {} ({}) => fn::{}().{}[{}]",
+                                 sqlite3_errmsg(db),
+                                 sqlite3_errcode(db),
+                                 sl.function_name(),
+                                 sl.line(),
+                                 sl.file_name()
+    );
+    std::cerr << str << '\n';
+}
 
 std::pair<std::string, std::vector<value_t>>
 query4insert(std::string const &table_name, row_t fields) noexcept;

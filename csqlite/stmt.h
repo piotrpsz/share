@@ -1,5 +1,4 @@
 #pragma once
-#include "helper.h"
 #include "amalgamation/sqlite3.h"
 #include "result.h"
 

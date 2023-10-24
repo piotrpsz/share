@@ -1,5 +1,4 @@
 #pragma once
-
 #include <utility>
 #include <variant>
 #include <span>
@@ -42,17 +41,14 @@ public:
     i64 int64() const noexcept {
         return std::get<INTEGER_INDEX>(data_);
     }
-
     [[nodiscard]]
     f64 float64() const noexcept {
         return std::get<DOUBLE_INDEX>(data_);
     }
-
     [[nodiscard]]
     std::string str() const noexcept {
         return std::get<STRING_INDEX>(data_);
     }
-
     [[nodiscard]]
     std::vector<u8> vec() const noexcept {
         return std::get<VECTOR_INDEX>(data_);
@@ -65,21 +61,18 @@ public:
             return std::get<INTEGER_INDEX>(data_);
         return {};
     }
-
     [[nodiscard]]
     std::optional<f64> float64_if() const noexcept {
         if (data_.index() == DOUBLE_INDEX)
             return std::get<DOUBLE_INDEX>(data_);
         return {};
     }
-
     [[nodiscard]]
     std::optional<std::string> str_if() const noexcept {
         if (data_.index() == STRING_INDEX)
             return std::get<STRING_INDEX>(data_);
         return {};
     }
-
     [[nodiscard]]
     std::optional<std::vector<u8>> vec_if() const noexcept {
         if (data_.index() == VECTOR_INDEX)
@@ -87,6 +80,8 @@ public:
         return {};
     }
 
+    /// Wyznaczenie rozmiaru informacji o wartości po serializacji.
+    /// \return liczba bajtów po serializacji.
     [[nodiscard]] ssize_t
     size_ext() const noexcept {
         switch (data_.index()) {
@@ -109,7 +104,7 @@ public:
     /// \param v - span bajtów, z ktorych odtwarzamy pierwszy obiekt 'value_t'
     /// \return para, którą tworzą utworzony obiekt 'value_t' i liczba skonsumowanych bajtów.
     static std::pair<value_t, int>
-    from_bytes(std::span<u8> v) noexcept {
+    deserialize(std::span<u8> v) noexcept {
         switch (v[0]) {
             case MONOSTATE_INDEX:
                 return {value_t(), 1};

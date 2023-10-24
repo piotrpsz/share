@@ -2,7 +2,6 @@
 #include <format>
 #include <sstream>
 #include "stmt.h"
-#include "helper.h"
 #include "../share.h"
 using namespace std;
 
@@ -10,7 +9,7 @@ using namespace std;
 bool sqlite_t::close() noexcept {
     if (db_) {
         if (sqlite3_close_v2(db_) != SQLITE_OK) {
-            LOG_ERROR();
+            LOG_ERROR(db_);
             return false;
         }
         db_ = nullptr;
@@ -35,7 +34,7 @@ bool sqlite_t::open(fs::path const &path, bool const read_only) noexcept {
         return true;
     }
     db_ = nullptr;
-    LOG_ERROR();
+    LOG_ERROR(db_);
     return false;
 }
 
@@ -72,7 +71,7 @@ bool sqlite_t::create(fs::path const &path, function<bool(sqlite_t *)> const &la
         cout << "database created successfully: " << path << '\n';
         return true;
     }
-    LOG_ERROR();
+    LOG_ERROR(db_);
     return false;
 }
 
@@ -80,7 +79,7 @@ bool sqlite_t::exec(std::string const &query, std::vector<value_t> const &args) 
     if (stmt_t(db_).exec(query, args))
         return true;
 
-    LOG_ERROR();
+    LOG_ERROR(db_);
     return false;
 }
 
@@ -88,7 +87,7 @@ i64 sqlite_t::insert(std::string const &query, std::vector<value_t> args) const 
     if (stmt_t(db_).exec(query, std::move(args)))
         return sqlite3_last_insert_rowid(db_);
 
-    LOG_ERROR();
+    LOG_ERROR(db_);
     return -1;
 }
 
@@ -108,7 +107,7 @@ optional<result_t>
 sqlite_t::select(string const &query, vector<value_t> const &args) const noexcept {
     if (auto result = stmt_t(db_).select(query, args); result)
         return result;
-    LOG_ERROR();
+    LOG_ERROR(db_);
     return {};
 }
 

@@ -40,8 +40,8 @@ public:
         data_.emplace_back(std::move(name), std::move(value));
         return *this;
     }
-    row_t& add(std::string name) {
-        data_.emplace_back(std::move(name));
+    row_t& add(const std::string& name) {
+        data_.emplace_back(name);
         return *this;
     }
 
@@ -49,7 +49,7 @@ public:
     row_t &add(std::string name, std::optional<T> value) noexcept {
         return (value)
                ? add(std::move(name), std::move(*value))
-               : add(std::move(name));
+               : add(name);
     }
 
     /// Wektor par <nazwa, wartość> rozbijany na wektor nazw i wektor wartości
@@ -60,12 +60,13 @@ public:
     using const_iterator = std::vector<field_t>::const_iterator;
     iterator begin() { return data_.begin(); }
     iterator end() { return data_.end(); }
-    const_iterator cbegin() const { return data_.cbegin(); }
-    const_iterator cend() const { return data_.cend(); }
+    [[nodiscard]] const_iterator cbegin() const { return data_.cbegin(); }
+    [[nodiscard]] const_iterator cend() const { return data_.cend(); }
+
+    [[nodiscard]] std::string as_str() const noexcept;
+
 
     friend std::ostream &operator<<(std::ostream &s, row_t const &r);
     friend class field_t;
 };
-
-std::ostream &operator<<(std::ostream &s, field_t const &f);
 
