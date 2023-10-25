@@ -1,17 +1,20 @@
 #pragma once
+
+/*------- include files:
+-------------------------------------------------------------------*/
 #include <array>
 #include <string>
 #include <functional>
 #include <utility>
 #include <initializer_list>
 #include <filesystem>
-#include <source_location>
 #include "amalgamation/sqlite3.h"
 #include "../share.h"
 #include "result.h"
 #include "row.h"
 #include "result.h"
-
+#include "query.h"
+#include "stmt.h"
 
 class sqlite_t final {
     static inline std::array<u8, 16> header = {
@@ -47,35 +50,62 @@ public:
     bool
     create(fs::path const &path, std::function<bool(sqlite_t *)> const &lambda, bool override = false) noexcept;
 
+    //======= EXEC ==================================================
     [[nodiscard]] bool
-    exec(std::string const &query, std::vector<value_t> const &args = {}) const noexcept;
-
+    exec(query_t const& query ) const noexcept {
+        return stmt_t(db_).exec(query);
+    }
+    [[nodiscard]] bool
+    exec(std::string const& str, std::vector<value_t> const &args = {}) const noexcept {
+        return exec(query_t{str, args});
+    }
+    //======= INSERT ================================================
     [[nodiscard]] i64
-    insert(std::string const &query, std::initializer_list<value_t> args) const noexcept {
-        return insert(query, std::vector<value_t>(args));
+    insert(query_t const& query) const noexcept {
+        if (stmt_t(db_).exec(query))
+            return sqlite3_last_insert_rowid(db_);
+        return -1;
+    }
+    [[nodiscard]] constexpr i64
+    insert(std::string const& str, std::initializer_list<value_t> args) const noexcept {
+        return insert(query_t{str, std::vector<value_t>(args)});
+    }
+    [[nodiscard]] constexpr i64
+    insert(std::string const& str, std::vector<value_t> const& args = {}) const noexcept {
+        return insert(query_t{str, args});
+    }
+    [[nodiscard]] constexpr i64
+    insert(std::string const &table_name, row_t const& fields) const noexcept {
+        return insert(query4insert(table_name, fields));
+    };
+
+    //======= UPDATE ================================================
+    [[nodiscard]] constexpr bool
+    update(query_t const& query) const noexcept {
+        return exec(query);
+    }
+    [[nodiscard]] constexpr bool
+    update(std::string const& str, std::initializer_list<value_t> const &args = {}) const noexcept {
+        return exec(query_t{str, std::vector<value_t>(args)});
+    }
+    [[nodiscard]] constexpr bool
+    update(std::string const& str, std::vector<value_t> const& args) const noexcept {
+        return exec(query_t{str, args});
+    }
+    [[nodiscard]] constexpr bool
+    update(std::string const& table_name, row_t const& fields, std::optional<field_t> const& where) const noexcept {
+        return update(query4update(table_name, fields, where));
     }
 
-    [[nodiscard]] i64
-    insert(std::string const &query, std::vector<value_t> args = {}) const noexcept;
-
-    [[nodiscard]] i64
-    insert(std::string const &table_name, row_t fields) const noexcept;
-
-    [[nodiscard]] bool
-    update(std::string const &query, std::initializer_list<value_t> const &args = {}) const noexcept {
-        return exec(query, std::vector<value_t>(args));
-    }
-
-    [[nodiscard]] bool
-    update(std::string const &query, std::vector<value_t> const &args) const noexcept {
-        return exec(query, args);
-    }
-
-    [[nodiscard]] bool
-    update(std::string const &table_name, row_t fields, std::optional<field_t> where = {}) const noexcept;
-
+    //======= SELECT ================================================
     [[nodiscard]] std::optional<result_t>
-    select(std::string const &query, std::vector<value_t> const &args = {}) const noexcept;
+    select(query_t const& query) const noexcept {
+        return stmt_t(db_).select(query);
+    }
+    [[nodiscard]] constexpr std::optional<result_t>
+    select(std::string const& str, std::vector<value_t> const &args = {}) const noexcept {
+        return select(query_t{str, args});
+    }
 
 
 private:
@@ -83,31 +113,7 @@ private:
         sqlite3_initialize();
     }
 
-    [[nodiscard]] std::string
-    err_msg() const noexcept {
-        return {sqlite3_errmsg(db_)};
-    }
-
-    [[nodiscard]] int
-    err_code() const noexcept {
-        return sqlite3_errcode(db_);
-    }
+    static query_t query4insert(std::string const &table_name, row_t const& fields) noexcept;
+    static query_t query4update(std::string const &table_name, row_t const& fields, std::optional<field_t> const& where) noexcept;
 };
-
-inline static void LOG_ERROR(sqlite3* const db, std::source_location sl = std::source_location::current()) {
-    auto const str = fmt::format("SQLite Error: {} ({}) => fn::{}().{}[{}]",
-                                 sqlite3_errmsg(db),
-                                 sqlite3_errcode(db),
-                                 sl.function_name(),
-                                 sl.line(),
-                                 sl.file_name()
-    );
-    std::cerr << str << '\n';
-}
-
-std::pair<std::string, std::vector<value_t>>
-query4insert(std::string const &table_name, row_t fields) noexcept;
-
-std::pair<std::string, std::vector<value_t>>
-query4update(std::string const &table_name, row_t fields, std::optional<field_t> where) noexcept;
 

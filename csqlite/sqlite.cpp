@@ -1,12 +1,13 @@
+/*------- include files:
+-------------------------------------------------------------------*/
 #include "sqlite.h"
-#include <format>
 #include <sstream>
+#include <fmt/core.h>
 #include "stmt.h"
-#include "../share.h"
-using namespace std;
 
-// close database
-bool sqlite_t::close() noexcept {
+/// close database
+bool sqlite_t::
+close() noexcept {
     if (db_) {
         if (sqlite3_close_v2(db_) != SQLITE_OK) {
             LOG_ERROR(db_);
@@ -17,105 +18,73 @@ bool sqlite_t::close() noexcept {
     return true;
 }
 
-bool sqlite_t::open(fs::path const &path, bool const read_only) noexcept {
+/// open existed database
+bool sqlite_t::
+open(fs::path const &path, bool const read_only) noexcept {
     if (db_ != nullptr) {
-        cerr << "database is already opened\n";
+        std::cerr << "database is already opened\n";
         return false;
     }
     if (path == IN_MEMORY) {
-        cerr << "database in memory can't be opened (use create)\n";
+        std::cerr << "database in memory can't be opened (use create)\n";
         return false;
     }
 
     auto const flags = read_only ? SQLITE_READONLY : SQLITE_OPEN_READWRITE;
     auto const database_path = path.string();
     if (SQLITE_OK == sqlite3_open_v2(database_path.c_str(), &db_, flags, nullptr)) {
-        cout << "database opened: " << path << '\n';
+        std::cout << fmt::format("database opened: {}\n", path.string());
         return true;
     }
-    db_ = nullptr;
     LOG_ERROR(db_);
+    db_ = nullptr;
     return false;
 }
 
-bool sqlite_t::create(fs::path const &path, function<bool(sqlite_t *)> const &lambda, bool override) noexcept {
+/// create new database.
+bool sqlite_t::
+create(fs::path const &path, std::function<bool(sqlite_t *)> const &lambda, bool override) noexcept {
     if (db_ != nullptr) {
-        cerr << "database is already opened\n";
+        std::cerr << "database is already opened\n";
         return false;
     }
     if (lambda == nullptr) {
-        cerr << "operations to be performed on created database were not specified\n";
+        std::cerr << "operations to be performed on created database were not specified\n";
         return false;
     }
 
-    error_code err{};
+    std::error_code err{};
     if (path != IN_MEMORY) {
         if (fs::exists(path, err)) {
             if (override) {
                 if (!fs::remove(path)) {
-                    cerr << "database file could not be deleted\n";
+                    std::cerr << "database file could not be deleted\n";
                     return false;
                 }
             }
         } else if (err)
-            cerr << "database already exist " << err << "\n";
+            std::cerr << "database already exist " << err << "\n";
     }
 
     auto const flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
     auto const database_path = path.string();
     if (SQLITE_OK == sqlite3_open_v2(database_path.c_str(), &db_, flags, nullptr)) {
         if (!lambda(this)) {
-            cerr << "error inside lambda\n";
+            std::cerr << "error inside lambda\n";
             return false;
         }
-        cout << "database created successfully: " << path << '\n';
+        std::cout << "database created successfully: " << path << '\n';
         return true;
     }
     LOG_ERROR(db_);
     return false;
 }
 
-bool sqlite_t::exec(std::string const &query, std::vector<value_t> const &args) const noexcept {
-    if (stmt_t(db_).exec(query, args))
-        return true;
-
-    LOG_ERROR(db_);
-    return false;
-}
-
-i64 sqlite_t::insert(std::string const &query, std::vector<value_t> args) const noexcept {
-    if (stmt_t(db_).exec(query, std::move(args)))
-        return sqlite3_last_insert_rowid(db_);
-
-    LOG_ERROR(db_);
-    return -1;
-}
-
-i64
-sqlite_t::insert(std::string const &table_name, row_t fields) const noexcept {
-    auto const [query, values] = query4insert(table_name, fields);
-    return insert(query, values);
-}
-
-bool
-sqlite_t::update(std::string const &table_name, row_t fields, optional<field_t> where) const noexcept {
-    auto const [query, values] = query4update(table_name, std::move(fields), std::move(where));
-    return update(query, values);
-}
-
-optional<result_t>
-sqlite_t::select(string const &query, vector<value_t> const &args) const noexcept {
-    if (auto result = stmt_t(db_).select(query, args); result)
-        return result;
-    LOG_ERROR(db_);
-    return {};
-}
-
-std::pair<std::string, std::vector<value_t>>
-query4update(string const &table_name, row_t fields, optional<field_t> where) noexcept {
+query_t sqlite_t::
+query4update(std::string const& table_name, row_t const& fields, std::optional<field_t> const& where) noexcept {
     auto [names, values] = fields.split();
 
-    stringstream placeholders;
+    std::stringstream placeholders;
     auto it = names.cbegin();
     auto end = prev(names.end());
     for (; it < end; it++) {
@@ -123,37 +92,37 @@ query4update(string const &table_name, row_t fields, optional<field_t> where) no
     }
     placeholders << *it << "=?";
 
-    stringstream ss{};
+    std::stringstream ss{};
     ss << "UPDATE " << table_name << " SET " << placeholders.str();
-    string query = ss.str();
+    std::string query = ss.str();
 
     if (where) {
         auto f = *where;
         auto const [name, value] = f();
-        stringstream ss{};
+        std::stringstream ss{};
         ss << " WHERE " << name << "=?";
         query += ss.str();
         values.push_back(value);
     }
     query += ";";
 
-    return make_pair(std::move(query), std::move(values));
+    return query_t{std::move(query), std::move(values)};
 }
 
-std::pair<std::string, std::vector<value_t>>
-query4insert(std::string const &table_name, row_t fields) noexcept {
+query_t sqlite_t::
+query4insert(std::string const& table_name, row_t const& fields) noexcept {
     auto [names, values] = fields.split();
-    vector<string> const placeholders(names.size(), "?");
-    stringstream ss{};
+    std::vector<std::string> const placeholders(names.size(), "?");
+    std::stringstream ss{};
     ss << "INSERT INTO " << table_name
         << '(' << share::join_strings(names) << ')'
         << " VALUES "
         << '(' << share::join_strings(placeholders) << ')'
         << ';';
 
-    return make_pair(ss.str(), std::move(values));
+    return query_t{ss.str(), std::move(values)};
 }
-
+/*
 std::string bytes_as_string(std::vector<u8> const& data) noexcept {
     if (data.empty()) return std::string{};
 
@@ -166,3 +135,4 @@ std::string bytes_as_string(std::vector<u8> const& data) noexcept {
     ss << "0x" << hex << setfill('0') << setw(2) << int(data[i]);
     return ss.str();
 }
+*/

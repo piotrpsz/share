@@ -21,13 +21,21 @@ public:
     explicit query_t(std::string str) : query_{std::move(str)} {}
     explicit query_t(std::string str, std::vector<value_t> data) : query_{std::move(str)}, values_{std::move(data)} {}
 
+    [[nodiscard]]
+    bool valid() const noexcept;
+
     /// Zwraca string zapytania.
     [[nodiscard]]
     std::string const& query() const noexcept {
         return query_;
     }
+
+    [[nodiscard]]
+    std::vector<value_t> const& values() const noexcept {
+        return values_;
+    }
     /// Dodanie kolejną wartość zapytania.
-    query_t& add(value_t v) noexcept {
+    query_t& add(value_t v = {}) noexcept {
         values_.push_back(v);
         return *this;
     }

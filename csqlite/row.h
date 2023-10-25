@@ -67,6 +67,5 @@ public:
 
 
     friend std::ostream &operator<<(std::ostream &s, row_t const &r);
-    friend class field_t;
 };
 
