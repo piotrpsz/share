@@ -107,13 +107,12 @@ public:
         return select(query_t{str, args});
     }
 
+    static query_t query4insert(std::string const &table_name, row_t const& fields) noexcept;
+    static query_t query4update(std::string const &table_name, row_t const& fields, std::optional<field_t> const& where) noexcept;
 
 private:
     sqlite_t() {
         sqlite3_initialize();
     }
-
-    static query_t query4insert(std::string const &table_name, row_t const& fields) noexcept;
-    static query_t query4update(std::string const &table_name, row_t const& fields, std::optional<field_t> const& where) noexcept;
 };
 

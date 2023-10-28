@@ -33,7 +33,8 @@ open(fs::path const &path, bool const read_only) noexcept {
     auto const flags = read_only ? SQLITE_READONLY : SQLITE_OPEN_READWRITE;
     auto const database_path = path.string();
     if (SQLITE_OK == sqlite3_open_v2(database_path.c_str(), &db_, flags, nullptr)) {
-        std::cout << fmt::format("database opened: {}\n", path.string());
+        std::cout << fmt::format("database opened: {}\n", path.string())
+                  << std::flush;
         return true;
     }
     LOG_ERROR(db_);
@@ -73,7 +74,8 @@ create(fs::path const &path, std::function<bool(sqlite_t *)> const &lambda, bool
             std::cerr << "error inside lambda\n";
             return false;
         }
-        std::cout << "database created successfully: " << path << '\n';
+        std::cout << fmt::format("The database created successfully: {}\n", path.string())
+                  << std::flush;
         return true;
     }
     LOG_ERROR(db_);
@@ -122,17 +124,3 @@ query4insert(std::string const& table_name, row_t const& fields) noexcept {
 
     return query_t{ss.str(), std::move(values)};
 }
-/*
-std::string bytes_as_string(std::vector<u8> const& data) noexcept {
-    if (data.empty()) return std::string{};
-
-    stringstream ss;
-    size_t const n = data.size() - 1;
-    size_t i = 0;
-
-    for (; i < n; i++)
-        ss << "0x" << hex << setfill('0') << setw(2) << int(data[i]) << ", ";
-    ss << "0x" << hex << setfill('0') << setw(2) << int(data[i]);
-    return ss.str();
-}
-*/

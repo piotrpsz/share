@@ -22,6 +22,9 @@ public:
     void push_back(row_t row) noexcept {
         data_.push_back(std::move(row));
     }
+    row_t const& operator[](ssize_t idx) const noexcept {
+        return data_[idx];
+    }
 
     using iterator = std::vector<row_t>::iterator;
     using const_iterator = std::vector<row_t>::const_iterator;

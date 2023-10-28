@@ -34,11 +34,13 @@ public:
     std::vector<value_t> const& values() const noexcept {
         return values_;
     }
-    /// Dodanie kolejną wartość zapytania.
-    query_t& add(value_t v = {}) noexcept {
-        values_.push_back(v);
+
+    query_t add(std::optional<value_t> v = {}) {
+        if (v) values_.push_back(*v);
+        else values_.emplace_back();
         return *this;
     }
+
     /// Zamiana ciągu bajtów na obiekt 'query_t'.
     static query_t deserialize(std::span<u8> data) noexcept;
 

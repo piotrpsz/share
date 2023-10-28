@@ -31,7 +31,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 	target_include_directories(share PUBLIC
 			csqlite
 			range-v3
-			date
+			date fmt
 	)
 	target_link_libraries(share PUBLIC
 			csqlite
@@ -42,7 +42,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 #------- WINDOWS ----------------------------------------------------
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	set(VCPKG  "C:/Users/user/vcpkg/installed/x64-windows")
-
 	find_package(range-v3 PATHS ${VCPKG})
 	find_package(fmt PATHS ${VCPKG})
 	find_package(date PATHS ${VCPKG})
