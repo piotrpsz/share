@@ -26,6 +26,7 @@ add_library(csqlite STATIC
 		value.h
 		query.h
         query.cpp
+        field.cpp
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")

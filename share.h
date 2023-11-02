@@ -14,6 +14,8 @@ using i64 = int64_t;
 using f32 = float;
 using f64 = double;
 using uint = unsigned int;
+template<typename T>
+    using vec= std::vector<T>;
 namespace fs = std::filesystem;
 
 enum class BytesFormat {
