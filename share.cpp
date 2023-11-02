@@ -19,6 +19,13 @@ as_string(std::span<u8> data, int n) noexcept {
             | ranges::to<std::string >();
 }
 
+std::string share::
+as_string(std::span<u8> data) noexcept {
+    return data
+            | ranges::views::transform([](u8 c) {return char(c);})
+            | ranges::to<std::string>();
+}
+
 /// Sprawdzenie czy przysłany znak nie(!) jest białym znakiem.
 /// \param c - znak do sprawdzenia
 /// \return True jeśli NIE jest białym znakiem, False w przeciwnym przypadku.

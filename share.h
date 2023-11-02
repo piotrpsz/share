@@ -27,6 +27,7 @@ public:
     /// \param n - liczba bajtów do użycia.
     /// \return string utworzony ze wskazanej liczby bajtów.
     static std::string as_string(std::span<u8> data, int n) noexcept;
+    static std::string as_string(std::span<u8> data) noexcept;
 
     /// Sprawdzenie czy przysłany znak nie(!) jest białym znakiem.
     /// \param c - znak do sprawdzenia
