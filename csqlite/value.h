@@ -157,7 +157,7 @@ public:
 
     /// Zamiana (serializacja) 'value' na bajty (w wektorze).
     [[nodiscard]] std::vector<u8>
-    bytes() const noexcept {
+    serialize() const noexcept {
         switch (data_.index()) {
             case MONOSTATE_INDEX:
                 return {MONOSTATE_INDEX};

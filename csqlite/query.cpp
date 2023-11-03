@@ -77,7 +77,7 @@ serialize() const noexcept {
     std::copy(std::begin(query_), std::end(query_), std::back_inserter(buffer));
     // i poszczególne wartości
     for (auto const& item: values_) {
-        auto bytes = item.bytes();
+        auto bytes = item.serialize();
         std::copy(std::begin(bytes), std::end(bytes), std::back_inserter(buffer));
     }
 
