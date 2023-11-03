@@ -4,6 +4,7 @@
 #include <fmt/core.h>
 #include <utility>
 #include "query.h"
+#include "serde.h"
 
 
 /// Sprawdzenie poprawności zapytania.
@@ -38,9 +39,11 @@ deserialize(std::span<u8> data) noexcept {
     // odczyt wartości zapytania
     std::vector<value_t> values{};
     while (!data.empty()) {
-        auto [v, n] = value_t::deserialize(data);
-        values.push_back(std::move(v));
-        data = data.subspan(n);
+//        auto [v, n] = serde::deserialize2value(data); //  value_t::deserialize(data);
+//        values.push_back(std::move(v));
+        auto v = serde::deserialize2value(data);
+        values.push_back(v);
+        data = data.subspan(serde::ser_size(v));
     }
 
     return query_t{share::trim(query), values};
@@ -58,7 +61,7 @@ serialize() const noexcept {
             values_.cbegin(), values_.cend(),
             0,
             [](ssize_t count, value_t const& v) {
-                return count + v.size_ext();
+                return count + serde::ser_size(v);
             }
     );
     std::vector<u8> buffer;
@@ -76,8 +79,8 @@ serialize() const noexcept {
     // kopiuj zapytanie
     std::copy(std::begin(query_), std::end(query_), std::back_inserter(buffer));
     // i poszczególne wartości
-    for (auto const& item: values_) {
-        auto bytes = item.serialize();
+    for (auto const& v: values_) {
+        auto bytes = serde::serialize(v);
         std::copy(std::begin(bytes), std::end(bytes), std::back_inserter(buffer));
     }
 

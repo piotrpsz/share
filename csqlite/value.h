@@ -82,59 +82,59 @@ public:
 
     /// Wyznaczenie rozmiaru informacji o wartości po serializacji.
     /// \return liczba bajtów po serializacji.
-    [[nodiscard]] ssize_t
-    size_ext() const noexcept {
-        switch (data_.index()) {
-            case MONOSTATE_INDEX:
-                return 1;
-            case INTEGER_INDEX:
-                return 1 + sizeof(i64);
-            case DOUBLE_INDEX:
-                return 1 + sizeof(f64);
-            case STRING_INDEX:
-                return 1 + sizeof(u16) + std::get<STRING_INDEX>(data_).size();
-            case VECTOR_INDEX:
-                return 1 + sizeof(u32) + std::get<VECTOR_INDEX>(data_).size();
-        }
-        return 0;
-    }
+//    [[nodiscard]] ssize_t
+//    size_ext() const noexcept {
+//        switch (data_.index()) {
+//            case MONOSTATE_INDEX:
+//                return 1;
+//            case INTEGER_INDEX:
+//                return 1 + sizeof(i64);
+//            case DOUBLE_INDEX:
+//                return 1 + sizeof(f64);
+//            case STRING_INDEX:
+//                return 1 + sizeof(u16) + std::get<STRING_INDEX>(data_).size();
+//            case VECTOR_INDEX:
+//                return 1 + sizeof(u32) + std::get<VECTOR_INDEX>(data_).size();
+//        }
+//        return 0;
+//    }
 
     /// Utworzenie obiektu 'value_t' z ciągu wskazanych bajtów. \n
     /// Funkcja konsumuje tyle bajtów ile potrzebuje (dalsze bajty mogą dotyczyć kolejnych obiektów).
     /// \param v - span bajtów, z ktorych odtwarzamy pierwszy obiekt 'value_t'
     /// \return para, którą tworzą utworzony obiekt 'value_t' i liczba skonsumowanych bajtów.
-    static std::pair<value_t, int>
-    deserialize(std::span<u8> v) noexcept {
-        switch (v[0]) {
-            case MONOSTATE_INDEX:
-                return {value_t(), 1};
-            case INTEGER_INDEX: {
-                i64 n{};
-                ::memcpy(&n, v.data() + 1, sizeof(i64));
-                return {value_t(n), 1 + sizeof(i64)};
-            }
-            case DOUBLE_INDEX: {
-                f64 n{};
-                ::memcpy(&n, v.data() + 1, sizeof(f64));
-                return {value_t(n), 1 + sizeof(f64)};
-            }
-            case STRING_INDEX: {
-                u16 n{};
-                ::memcpy(&n, v.data() + 1, sizeof(u16));
-                std::string str{reinterpret_cast<char *>(v.data() + 1 + sizeof(u16)), n};
-                return {value_t(str), 1 + sizeof(u16) + n};
-            }
-            case VECTOR_INDEX: {
-                u32 n{};
-                ::memcpy(&n, v.data() + 1, sizeof(u32));
-                std::vector<u8> vec;
-                vec.resize(n);
-                ::memcpy(vec.data(), v.data() + 1 + sizeof(u32), n);
-                return {value_t(vec), 1 + sizeof(u32) + n};
-            }
-        }
-        return {};
-    }
+//    static std::pair<value_t, int>
+//    deserialize(std::span<u8> v) noexcept {
+//        switch (v[0]) {
+//            case MONOSTATE_INDEX:
+//                return {value_t(), 1};
+//            case INTEGER_INDEX: {
+//                i64 n{};
+//                ::memcpy(&n, v.data() + 1, sizeof(i64));
+//                return {value_t(n), 1 + sizeof(i64)};
+//            }
+//            case DOUBLE_INDEX: {
+//                f64 n{};
+//                ::memcpy(&n, v.data() + 1, sizeof(f64));
+//                return {value_t(n), 1 + sizeof(f64)};
+//            }
+//            case STRING_INDEX: {
+//                u16 n{};
+//                ::memcpy(&n, v.data() + 1, sizeof(u16));
+//                std::string str{reinterpret_cast<char *>(v.data() + 1 + sizeof(u16)), n};
+//                return {value_t(str), 1 + sizeof(u16) + n};
+//            }
+//            case VECTOR_INDEX: {
+//                u32 n{};
+//                ::memcpy(&n, v.data() + 1, sizeof(u32));
+//                std::vector<u8> vec;
+//                vec.resize(n);
+//                ::memcpy(vec.data(), v.data() + 1 + sizeof(u32), n);
+//                return {value_t(vec), 1 + sizeof(u32) + n};
+//            }
+//        }
+//        return {};
+//    }
 
     /// Opis obiektu 'value' w postaci tekstowej.
     [[nodiscard]] std::string
@@ -156,52 +156,54 @@ public:
     }
 
     /// Zamiana (serializacja) 'value' na bajty (w wektorze).
-    [[nodiscard]] std::vector<u8>
-    serialize() const noexcept {
-        switch (data_.index()) {
-            case MONOSTATE_INDEX:
-                return {MONOSTATE_INDEX};
-            case INTEGER_INDEX: {
-                // 1 bajt type + 8 baitów wartości (64 bity)
-                i64 const n = std::get<INTEGER_INDEX>(data_);
-                std::vector<u8> v{INTEGER_INDEX};
-                v.resize(1 + sizeof(i64));
-                ::memcpy(v.data() + 1, reinterpret_cast<void const *>(&n), sizeof(i64));
-                return v;
-            }
-            case DOUBLE_INDEX: {
-                // 1 bajt type + 8 baitów wartości
-                f64 const n = std::get<DOUBLE_INDEX>(data_);
-                std::vector<u8> v{DOUBLE_INDEX};
-                v.resize(1 + sizeof(f64));
-                ::memcpy(v.data() + 1, reinterpret_cast<void const *>(&n), sizeof(f64));
-                return v;
-            }
-            case STRING_INDEX: {
-                // 1 bajt type + 2 bajty (u16) size + bajty stringa
-                // maksymalny rozmiar stringa: 65535 (u16, 2 bajty)
-                std::string str = std::get<STRING_INDEX>(data_);
-                u16 n = static_cast<u16>(str.size());
-                std::vector<u8> v{STRING_INDEX};
-                v.resize(1 + sizeof(u16) + n);
-                ::memcpy(v.data() + 1, reinterpret_cast<void const *>(&n), sizeof(u16));
-                ::memcpy(v.data() + 1 + sizeof(u16), str.data(), n);
-                return v;
-            }
-            case VECTOR_INDEX: {
-                // 1 bajt type + 4 bajy (u32) size + bajty wektora blob
-                // maksymalny rozmiar wektora-blob: 4 294 967 295 (u32, 4 bajty)
-                std::vector<u8> vec = std::get<VECTOR_INDEX>(data_);
-                u32 n = static_cast<u32>(vec.size());
-                std::vector<u8> v{VECTOR_INDEX};
-                v.resize(1 + sizeof(u32) + n);
-                ::memcpy(v.data() + 1, reinterpret_cast<void const *>(&n), sizeof(u32));
-                ::memcpy(v.data() + 1 + sizeof(u32), vec.data(), n);
-                return v;
-            }
-        }
-        return {};
-    }
+//    [[nodiscard]] std::vector<u8>
+//    serialize() const noexcept {
+//        switch (data_.index()) {
+//            case MONOSTATE_INDEX:
+//                return {MONOSTATE_INDEX};
+//            case INTEGER_INDEX: {
+//                // 1 bajt type + 8 baitów wartości (64 bity)
+//                i64 const n = std::get<INTEGER_INDEX>(data_);
+//                std::vector<u8> v{INTEGER_INDEX};
+//                v.resize(1 + sizeof(i64));
+//                ::memcpy(v.data() + 1, reinterpret_cast<void const *>(&n), sizeof(i64));
+//                return v;
+//            }
+//            case DOUBLE_INDEX: {
+//                // 1 bajt type + 8 baitów wartości
+//                f64 const n = std::get<DOUBLE_INDEX>(data_);
+//                std::vector<u8> v{DOUBLE_INDEX};
+//                v.resize(1 + sizeof(f64));
+//                ::memcpy(v.data() + 1, reinterpret_cast<void const *>(&n), sizeof(f64));
+//                return v;
+//            }
+//            case STRING_INDEX: {
+//                // 1 bajt type + 2 bajty (u16) size + bajty stringa
+//                // maksymalny rozmiar stringa: 65535 (u16, 2 bajty)
+//                std::string str = std::get<STRING_INDEX>(data_);
+//                u16 n = static_cast<u16>(str.size());
+//                std::vector<u8> v{STRING_INDEX};
+//                v.resize(1 + sizeof(u16) + n);
+//                ::memcpy(v.data() + 1, reinterpret_cast<void const *>(&n), sizeof(u16));
+//                ::memcpy(v.data() + 1 + sizeof(u16), str.data(), n);
+//                return v;
+//            }
+//            case VECTOR_INDEX: {
+//                // 1 bajt type + 4 bajy (u32) size + bajty wektora blob
+//                // maksymalny rozmiar wektora-blob: 4 294 967 295 (u32, 4 bajty)
+//                std::vector<u8> vec = std::get<VECTOR_INDEX>(data_);
+//                u32 n = static_cast<u32>(vec.size());
+//                std::vector<u8> v{VECTOR_INDEX};
+//                v.resize(1 + sizeof(u32) + n);
+//                ::memcpy(v.data() + 1, reinterpret_cast<void const *>(&n), sizeof(u32));
+//                ::memcpy(v.data() + 1 + sizeof(u32), vec.data(), n);
+//                return v;
+//            }
+//        }
+//        return {};
+//    }
+
+    friend class serde;
 
     /// Zaprzyjaźniony operator wysyłania do strumienia reprezentacji tekstowej.
     friend std::ostream& operator<<(std::ostream& s, value_t const& v) {
