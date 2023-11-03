@@ -30,11 +30,12 @@ public:
     using const_iterator = std::vector<row_t>::const_iterator;
     iterator begin()  { return data_.begin(); }
     iterator end() { return data_.end(); }
-    const_iterator begin() const{ return data_.cbegin(); }
-    const_iterator end() const { return data_.cend(); }
-    const_iterator cbegin() const { return data_.cbegin(); }
-    const_iterator cend() const { return data_.cend(); }
+    [[nodiscard]] const_iterator begin() const{ return data_.cbegin(); }
+    [[nodiscard]] const_iterator end() const { return data_.cend(); }
+    [[nodiscard]] const_iterator cbegin() const { return data_.cbegin(); }
+    [[nodiscard]] const_iterator cend() const { return data_.cend(); }
 
+    friend class serde;
     friend std::ostream &operator<<(std::ostream &s, row_t const &r);
 };
 

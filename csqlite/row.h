@@ -44,6 +44,10 @@ public:
         data_.emplace_back(name);
         return *this;
     }
+    row_t& add(field_t f) noexcept {
+        data_.push_back(std::move(f));
+        return *this;
+    }
 
     template<typename T>
     row_t &add(std::string name, std::optional<T> value) noexcept {
@@ -65,7 +69,7 @@ public:
 
     [[nodiscard]] std::string as_str() const noexcept;
 
-
+    friend class serde;
     friend std::ostream &operator<<(std::ostream &s, row_t const &r);
 };
 
