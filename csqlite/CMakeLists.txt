@@ -20,13 +20,11 @@ add_library(csqlite STATIC
 		sqlite.cpp sqlite.h
 		stmt.cpp stmt.h
 		row.cpp row.h
-		result.cpp result.h
+		result.h
 		amalgamation/sqlite3.c
-		result.cpp
 		value.h
 		query.h
         query.cpp
-        field.cpp
         serde.cpp
         serde.h
 )

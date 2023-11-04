@@ -26,7 +26,7 @@ std::string row_t::as_str() const noexcept {
     for (auto const& f : data_)
         buffer.push_back(f.as_str());
 
-    return share::join_strings(buffer, '\n');
+    return share::join_strings(buffer, ',');
 }
 
 ostream& operator<<(ostream& s, row_t const& r) {

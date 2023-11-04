@@ -11,20 +11,64 @@ using namespace std;
  *                        R E S U L T                               *
  *                                                                  *
  ********************************************************************/
+namespace tns {
+    using total_size_t = u64;
+    using rows_number_t = u32;
+}
+
 
 u64 serde::
 ser_size(result_t const& v) noexcept {
-
+    auto const content_size = accumulate(
+            v.data_.cbegin(),
+            v.data_.cend(),
+            tns::total_size_t {},
+            [](ssize_t const count, row_t const& r) {
+                return count + ser_size(r);
+            });
+    return u64(sizeof(tns::total_size_t) + sizeof(tns::rows_number_t) + content_size);
 }
 
 vec<u8> serde::
-serialize(result_t const& v) noexcept {
+serialize(result_t const& result) noexcept {
+    auto const total_size = static_cast<tns::total_size_t>(ser_size(result));
 
+    vec<u8> buffer;
+    buffer.reserve(total_size);
+    {   // zapamiętaj całkowity rozmiar
+        auto const ptr = reinterpret_cast<u8 const*>(&total_size);
+        copy(ptr, ptr + sizeof(tns::total_size_t), back_inserter(buffer));
+    }
+    {   // zapamiętaj liczbę wierszy
+        auto const n = static_cast<tns::rows_number_t>(result.data_.size());
+        auto const ptr = reinterpret_cast<u8 const*>(&n);
+        copy(ptr, ptr + sizeof(tns::rows_number_t), back_inserter(buffer));
+    }
+    for (auto const& row : result) {
+        auto data = serialize(row);
+        copy(begin(data), end(data), back_inserter(buffer));
+    }
+    buffer.shrink_to_fit();
+    return buffer;
 }
 
 result_t serde::
 deserialize2result(std::span<u8> data) noexcept {
+    tns::total_size_t total_size;
+    memcpy(&total_size, data.data(), sizeof(tns::total_size_t));
+    data = data.subspan(sizeof(tns::total_size_t), data.size() - sizeof(tns::total_size_t));
 
+    tns::rows_number_t n;
+    memcpy(&n, data.data(), sizeof(tns::rows_number_t ));
+    data = data.subspan(sizeof(tns::rows_number_t));
+
+    result_t result{};
+    for (tns::rows_number_t i = 0; i < n; i++) {
+        auto row = deserialize2row(data);
+        data = data.subspan(ser_size(row));
+        result.push_back(row);
+    }
+    return result;
 }
 
 
@@ -39,10 +83,10 @@ namespace rns {
 }
 
 u64 serde::
-ser_size(row_t const& v) noexcept {
+ser_size(row_t const& row) noexcept {
      auto const content_size = accumulate(
-            v.data_.cbegin(),
-            v.data_.cend(),
+            row.data_.cbegin(),
+            row.data_.cend(),
             rns::total_size_t {},
             [](ssize_t const count, field_t const& f) {
                 return count + ser_size(f);
@@ -51,8 +95,8 @@ ser_size(row_t const& v) noexcept {
 }
 
 vec<u8> serde::
-serialize(row_t const& r) noexcept {
-    auto total_size = static_cast<rns::total_size_t>(ser_size(r));
+serialize(row_t const& row) noexcept {
+    auto total_size = static_cast<rns::total_size_t>(ser_size(row));
 
     vec<u8> buffer;
     buffer.reserve(total_size);
@@ -61,12 +105,12 @@ serialize(row_t const& r) noexcept {
         copy(ptr, ptr + sizeof(rns::total_size_t), back_inserter(buffer));
     }
     {   // zapamiętaj liczbę pól
-        rns::fields_number_t n = r.data_.size();
+        auto const n = static_cast<rns::fields_number_t>(row.data_.size());
         auto ptr = reinterpret_cast<u8 const*>(&n);
         copy(ptr, ptr + sizeof(rns::fields_number_t), back_inserter(buffer));
     }
-    for (auto const& f : r.data_) {
-        auto data = serialize(f);
+    for (auto const& field : row.data_) {
+        auto data = serialize(field);
         copy(begin(data), end(data), back_inserter(buffer));
     }
     buffer.shrink_to_fit();

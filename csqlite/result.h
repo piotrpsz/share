@@ -17,7 +17,9 @@ public:
     [[nodiscard]] bool empty() const noexcept {
         return data_.empty();
     }
-    [[nodiscard]] size_t size() const noexcept;
+    [[nodiscard]] size_t size() const noexcept {
+        return data_.size();
+    }
 
     void push_back(row_t row) noexcept {
         data_.push_back(std::move(row));
@@ -40,8 +42,10 @@ public:
 };
 
 static inline std::ostream &operator<<(std::ostream& s, result_t const& result) {
+    std::cout << "result (\n";
     for (auto const& row: result)
-        std::cout << row << '\n';
+        std::cout << '\t' << row << '\n';
+    std::cout << ")\n";
     return s;
 }
 

@@ -17,9 +17,6 @@ public:
     field_t& operator=(field_t const&) = default;
     field_t& operator=(field_t&&) = default;
 
-//    vec<u8> serialize() const noexcept;
-//    static field_t deserialize(std::span<u8> data) noexcept;
-
     /// Zwraca kopię danych (pair).
     std::pair<std::string, value_t> operator()() const noexcept {
         return data_;
@@ -27,11 +24,10 @@ public:
 
     [[nodiscard]] std::string as_str() const noexcept {
         auto const [name, value] = data_;
-        return fmt::format("{}:({})", name, value.as_str());
+        return fmt::format("{}:[{}]", name, value.as_str());
     }
 
     friend class serde;
-
     friend std::ostream &operator<<(std::ostream& s, field_t const& f) {
         s << f.as_str();
         return s;
