@@ -8,14 +8,19 @@ namespace serde {
 
         static const u8 FIELD_MARKER = 'F';
 
-
+        /// Obliczenie ile bajtów zajmie zserializowany obiekt.
+        /// \param field - obiekt dla którego wyznaczamy liczbę bajtów.
+        /// \return liczba bajtów po zserializowaniu obiektu.
         int length(field_t const& f) noexcept {
             auto const& [name, value] = f();
             auto const name_size = static_cast<name_size_t>(name.size());
             auto const value_size = static_cast<value_size_t>(serde::value::length(value));
             return 1 + int(sizeof(name_size_t) + name_size + value_size);
-        }
+        }   // end of length
 
+        /// Zamiana obiektu 'field_t' na odpowiednie bajty (serializacja).
+        /// \param f - obiekt do serializacji.
+        /// \return wektor bajtów reprezentujących przekazany obiekt.
         vec<u8> as_bytes(field_t const& f) noexcept {
             auto const& [name, value] = f();
             auto const name_size = static_cast<name_size_t>(name.size());
@@ -40,10 +45,13 @@ namespace serde {
             // tak na wszelki wypadek (nie powinno się zdarzyć)
             buffer.shrink_to_fit();
             return buffer;
-        }
+        }   // end as_bytes
 
+        /// Utworzenie obiektu 'field_t' z przysłanych bajtów (deserializacja).
+        /// \param bytes - ciąg bajów reprezentujących obiekt 'field_t'.
+        /// \return utworzony obiekt jeśli wszystko się powiodło, nullopt w przeciwnym przypadku.
         std::optional<field_t> from_bytes(std::span<u8> bytes) noexcept {
-            // pobierz marker pola i sprawdź czy jest właściwy
+            // pobierz marker i sprawdź czy jest właściwy
             if (bytes.empty() || bytes[0] != FIELD_MARKER) return {};
             bytes = bytes.subspan(1);
 
@@ -58,6 +66,7 @@ namespace serde {
             std::string name{share::as_string(bytes, name_size)};
             bytes = bytes.subspan(name_size);
 
+            // pobierz wartość pola
             if ( bytes.size() < name_size) return {};
             auto value = serde::value::from_bytes(bytes);
 
