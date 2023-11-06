@@ -6,6 +6,9 @@ namespace serde::result {
     using rows_number_t = u16;
     static const u8 RESULT_MARKER = 'S';
 
+    /// Obliczenie ile bajtów zajmie zserializowany obiekt.
+    /// \param result - obiekt dla którego wyznaczamy liczbę bajtów.
+    /// \return liczba bajtów po zserializowaniu obiektu.
     int length(result_t const& result) noexcept {
         auto const content_size = accumulate(
                 result.cbegin(),
@@ -17,6 +20,9 @@ namespace serde::result {
         return 1 + int(sizeof(rows_number_t) + content_size);
     }
 
+    /// Zamiana obiektu 'result_t' na odpowiednie bajty (serializacja).
+    /// \param result - obiekt do serializacji.
+    /// \return wektor bajtów reprezentujących przekazany obiekt.
     vec<u8> as_bytes(result_t const& result) noexcept {
         auto const total_size = length(result);
 
@@ -36,7 +42,7 @@ namespace serde::result {
         return buffer;
     }
 
-    /// Utworzenie obiketu 'result_t' z przysłanych bajtów (deserializacja).
+    /// Utworzenie obiektu 'result_t' z przysłanych bajtów (deserializacja).
     /// \param bytes - ciąg bajów reprezentujących obiekt 'result_t'
     /// \return utworzony obiekt jeśli wszystko się powiodło, nullopt w przeciwnym przypadku.
     std::optional<result_t> from_bytes(std::span<u8> bytes) noexcept {
@@ -44,7 +50,7 @@ namespace serde::result {
         if (bytes.empty() || bytes[0] != RESULT_MARKER) return {};
         bytes = bytes.subspan(1);
 
-        // pobierz liczbę wierszy
+        // pobierz liczbę wierszy w wyniku
         if (bytes.size() < sizeof(rows_number_t)) return {};
         rows_number_t n;
         memcpy(&n, bytes.data(), sizeof(rows_number_t));

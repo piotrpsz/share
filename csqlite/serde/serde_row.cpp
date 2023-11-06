@@ -8,6 +8,9 @@ namespace serde::row {
 
     static const u8 ROW_MARKER = 'R';
 
+    /// Obliczenie ile bajtów zajmie zserializowany obiekt.
+    /// \param row - obiekt dla którego wyznaczamy liczbę bajtów.
+    /// \return liczba bajtów po zserializowaniu obiektu.
     int length(row_t const& row) noexcept {
         auto const content_size = std::accumulate(
                 row.cbegin(),
@@ -19,6 +22,9 @@ namespace serde::row {
         return 1 + int(sizeof(fields_number_t) + content_size);
     }
 
+    /// Zamiana obiektu 'row_t' na odpowiednie bajty (serializacja).
+    /// \param row - obiekt do serializacji.
+    /// \return wektor bajtów reprezentujących przekazany obiekt.
     vec<u8> as_bytes(row_t const& row) noexcept {
         auto total_size = static_cast<total_size_t>(serde::row::length(row));
 
@@ -38,18 +44,21 @@ namespace serde::row {
         return buffer;
     }
 
+    /// Utworzenie obiektu 'row_t' z przysłanych bajtów (deserializacja).
+    /// \param bytes - ciąg bajów reprezentujących obiekt 'row_t'.
+    /// \return utworzony obiekt jeśli wszystko się powiodło, nullopt w przeciwnym przypadku.
     std::optional<row_t> from_bytes(std::span<u8> bytes) noexcept {
         // pobierz marker i sprawdź czy jest właściwy
         if (bytes.empty() || bytes[0] != ROW_MARKER) return {};
         bytes = bytes.subspan(1);
 
-        // fetch fields number
+        // pobierz liczbę pól w wierszu
         if (bytes.size() < sizeof(fields_number_t)) return {};
         fields_number_t n;
         memcpy(&n, bytes.data(), sizeof(fields_number_t));
         bytes = bytes.subspan(sizeof(fields_number_t));
 
-        // fetch all fields
+        // pobierz wszystkie pola
         row_t row{};
         for (int i = 0; i < n; i++) {
             auto f = serde::field::from_bytes(bytes);
@@ -57,7 +66,6 @@ namespace serde::row {
             bytes = bytes.subspan(serde::field::length(*f));
             row.add(*f);
         }
-
         return row;
     }
 }
