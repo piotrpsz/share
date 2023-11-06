@@ -17,17 +17,21 @@ public:
     field_t& operator=(field_t const&) = default;
     field_t& operator=(field_t&&) = default;
 
-    /// Zwraca kopię danych (pair).
-    std::pair<std::string, value_t> operator()() const noexcept {
+    auto const& operator()() const {
         return data_;
     }
+
+//    /// Zwraca kopię danych (pair).
+//    std::pair<std::string, value_t> operator()() const noexcept {
+//        return data_;
+//    }
 
     [[nodiscard]] std::string as_str() const noexcept {
         auto const [name, value] = data_;
         return fmt::format("{}:[{}]", name, value.as_str());
     }
 
-    friend class serde;
+//    friend class serde;
     friend std::ostream &operator<<(std::ostream& s, field_t const& f) {
         s << f.as_str();
         return s;

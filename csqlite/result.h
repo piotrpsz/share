@@ -37,7 +37,6 @@ public:
     [[nodiscard]] const_iterator cbegin() const { return data_.cbegin(); }
     [[nodiscard]] const_iterator cend() const { return data_.cend(); }
 
-    friend class serde;
     friend std::ostream &operator<<(std::ostream &s, row_t const &r);
 };
 

@@ -28,6 +28,10 @@ public:
     value_t(std::string v) : data_{v} {}
     value_t(std::vector<u8> v) : data_{std::move(v)} {}
 
+    auto const& operator()() const noexcept {
+        return data_;
+    }
+
     // GETTERS
     [[nodiscard]] int index() const noexcept {
         return data_.index();
@@ -99,7 +103,7 @@ public:
         }
     }
 
-    friend class serde;
+//    friend class serde;
     /// Zaprzyjaźniony operator wysyłania do strumienia reprezentacji tekstowej.
     friend std::ostream& operator<<(std::ostream& s, value_t const& v) {
         s << v.as_str();

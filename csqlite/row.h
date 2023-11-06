@@ -69,7 +69,6 @@ public:
 
     [[nodiscard]] std::string as_str() const noexcept;
 
-    friend class serde;
     friend std::ostream &operator<<(std::ostream &s, row_t const &r);
 };
 
