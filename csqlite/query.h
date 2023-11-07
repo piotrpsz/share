@@ -41,16 +41,6 @@ public:
         return *this;
     }
 
-    /// Zamiana ciągu bajtów na obiekt 'query_t'.
-    static query_t deserialize(std::span<u8> data) noexcept;
-
-    /// Zamiana (serializacja) 'query_t' na bajty (w wektorze).
-    /// u32 - całkowity rozmiar query+values w bajtach,
-    /// u16 - rozmiar stringa query
-    /// bajty stringa query (w ilości określonej powyżej)
-    /// dalsze bajty to values
-    [[nodiscard]] std::vector<u8> serialize() const noexcept;
-
     /// Zaprzyjaźniony operator wysyłania do strumienia reprezentacji tekstowej.
     friend std::ostream& operator<<(std::ostream& s, query_t const& q) noexcept;
 };

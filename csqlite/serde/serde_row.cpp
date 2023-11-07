@@ -26,11 +26,10 @@ namespace serde::row {
     /// \param row - obiekt do serializacji.
     /// \return wektor bajtów reprezentujących przekazany obiekt.
     vec<u8> as_bytes(row_t const& row) noexcept {
-        auto total_size = static_cast<total_size_t>(serde::row::length(row));
-
         vec<u8> buffer;
-        buffer.reserve(total_size);
+        buffer.reserve(length(row));
         buffer.push_back(ROW_MARKER);
+
         {   // zapamiętaj liczbę pól
             auto const n = static_cast<fields_number_t>(row.size());
             auto ptr = reinterpret_cast<u8 const *>(&n);

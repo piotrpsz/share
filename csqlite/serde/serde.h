@@ -5,6 +5,8 @@
 #include "serde_field.h"
 #include "serde_row.h"
 #include "serde_result.h"
+#include "serde_query.h"
+
 
 
 
@@ -41,6 +43,11 @@ namespace serde {
         return serde::result::as_bytes(result);
     }
 
+    // QUERY
+    vec<u8> as_bytes(query_t const& result) noexcept {
+        return serde::query::as_bytes(result);
+    }
+
     template<typename T>
      std::any from_bytes(std::span<u8> data) noexcept {
         if (std::is_same_v<T, value_t>)
@@ -56,6 +63,9 @@ namespace serde {
         if(std::is_same_v<T, result_t>)
             if (auto r = serde::result::from_bytes(data); r)
                 return *r;
+        if (std::is_same_v<T, query_t>)
+            if (auto q = serde::query::from_bytes(data); q)
+                return *q;
         return {};
     }
 }

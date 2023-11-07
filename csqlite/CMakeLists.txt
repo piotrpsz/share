@@ -31,6 +31,8 @@ add_library(csqlite STATIC
 		serde/serde_row.cpp serde/serde_row.h
 		serde/serde_result.cpp
 		serde/serde_result.h
+        serde/serde_query.cpp
+        serde/serde_query.h
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
