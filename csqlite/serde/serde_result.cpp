@@ -4,7 +4,7 @@
 
 namespace serde::result {
     using rows_number_t = u16;
-    static const u8 RESULT_MARKER = 'S';
+    static const u8 RESULT_MARKER = 'R';
 
     /// Obliczenie ile bajtów zajmie zserializowany obiekt.
     /// \param result - obiekt dla którego wyznaczamy liczbę bajtów.

@@ -6,7 +6,7 @@ namespace serde::row {
     using total_size_t = u64;
     using fields_number_t = u16;
 
-    static const u8 ROW_MARKER = 'R';
+    static const u8 ROW_MARKER = 'W';
 
     /// Obliczenie ile bajtów zajmie zserializowany obiekt.
     /// \param row - obiekt dla którego wyznaczamy liczbę bajtów.
