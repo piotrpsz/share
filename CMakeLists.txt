@@ -22,19 +22,15 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 	message("     tbb: ${tbb_DIR}")
 	message("--------------------------------------------------------------")
 
-	add_subdirectory(csqlite)
-
 	add_library(share STATIC
 			share.cpp share.h
 			daytime.cpp daytime.h
 	)
 	target_include_directories(share PUBLIC
-			csqlite
 			range-v3
 			date fmt
 	)
 	target_link_libraries(share PUBLIC
-			csqlite
 			TBB::tbb TBB::tbbmalloc TBB::tbbmalloc_proxy
 			range-v3::meta range-v3::concepts range-v3::range-v3
 			fmt
@@ -54,14 +50,11 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 #	message(" sqlite3: ${unofficial-sqlite3_DIR}")
 	message("--------------------------------------------------------------")
 
-	add_subdirectory(csqlite)
-
 	add_library(share STATIC
 			daytime.cpp daytime.h
 			share.cpp share.h
 	)
 	target_link_libraries( share PRIVATE
-			csqlite
 			fmt::fmt
 			date::date date::date-tz
 			range-v3::meta range-v3::concepts range-v3::range-v3
