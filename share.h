@@ -19,12 +19,12 @@ template<typename T>
     using vec= std::vector<T>;
 namespace fs = std::filesystem;
 
-enum class BytesFormat {
-    DEC, HEX
-};
-
 class share final {
 public:
+    enum class BytesFormat {
+        DEC, HEX
+    };
+
     /// Zamienia ciąg bajtów typu 'u8' na string.
     /// \param data - widok na ciągły zbór bajtów.
     /// \param n - liczba bajtów do użycia.
