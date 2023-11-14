@@ -25,6 +25,8 @@ enum class BytesFormat {
 
 class share final {
 public:
+    static std::string number2str(std::integral auto v, char separator = '\'') noexcept;
+
     /// Zamienia ciąg bajtów typu 'u8' na string.
     /// \param data - widok na ciągły zbór bajtów.
     /// \param n - liczba bajtów do użycia.
