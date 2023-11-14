@@ -25,7 +25,36 @@ enum class BytesFormat {
 
 class share final {
 public:
-    static std::string number2str(std::integral auto v, char separator = '\'') noexcept;
+    /// Zamiana liczby całkowitej na tekst, w którym grupy tysięcy \n
+    /// oddzielone są separatorem.
+    /// \param v - liczba całkowita dowolnego rozmiaru (+/-)
+    /// \return tekst reprezentujący przysłaną liczbę.
+    static std::string number2str(std::integral auto v, char separator = '\'') noexcept {
+        auto const text = std::to_string(static_cast<int64_t>(v));
+        ssize_t const size = text.size();
+        std::vector<char> buffer;
+        buffer.reserve(size + size/3);
+        auto offset = 0;
+
+        if (v < 0) {
+            offset = 1;
+            buffer.push_back('-');
+        }
+        auto comma_idx = 3 - ((size - offset) % 3);
+        if (comma_idx == 3)
+            comma_idx = 0;
+
+        for (ssize_t i = offset; i < size; i++) {
+            if (comma_idx == 3) {
+                buffer.push_back(separator);
+                comma_idx = 0;
+            }
+            comma_idx++;
+            buffer.push_back(text[i]);
+        }
+
+        return std::string{buffer.data(), buffer.size()};
+    }
 
     /// Zamienia ciąg bajtów typu 'u8' na string.
     /// \param data - widok na ciągły zbór bajtów.
