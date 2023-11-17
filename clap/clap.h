@@ -23,5 +23,6 @@ public:
 
 private:
     void add(std::string key, std::string value) noexcept;
+
     friend std::ostream& operator<<(std::ostream& s, Clap const& c) noexcept;
 };

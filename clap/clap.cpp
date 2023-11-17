@@ -2,33 +2,43 @@
 #include <fmt/core.h>
 #include "../share.h"
 
+/// Przypisanie wartości argumentu na podstawie klucza.
+/// \param key - klucz argumentu,
+/// \param value - wartość argumentu
+/// \remark Dopuszczalny jest brak wartości (wstawiany True - jako znak że jest). \n
+///         Dopuszczalny jest klucz jako zestaw (po jednym myślniku).
 void Clap::add(std::string key, std::string value) noexcept {
     auto is_long = key[0] == '-' && key[1] == '-';
-    for (auto& arg: data_) {
+
+    // Szukamy pełnego dopasowania.
+    for (auto& arg: data_)
         if ((is_long && arg.promarker() == key) || (!is_long && arg.marker() == key)) {
             if (value.empty()) arg.value(true);
             else arg.value(value);
             return;
         }
-    }
+
     // Nie ma dokładnego dopasowania.
-    // Może być, że mamy zestaw np. -ifr
-    // gdzie każda literka to marker jakiegos argumentu
+    // Może być, że mamy zestaw np. -ifr (jeśli nie ma wartości).
+    // W zestawie każda literka to marker jakiegos argumentu.
     if (!is_long && value.empty()) {
         auto const subkey{key.substr(1)};
         for (auto const c : subkey) {
             auto ok{false};
             for (auto& arg: data_) {
                 if (arg.marker().substr(1)[0] == c) {
-                    arg.value(true);
-                    ok = true;
+                    arg.value(ok = true);
+                    break;
                 }
             }
+            // Nie dopasowano tej literki.
             if (!ok)
                 fmt::print(stderr, "unknown parameter: -{} (in {})\n", c, key);
         }
         return;
     }
+
+    // Nie jest to zestaw lub jest wartość (nie dopuszczalna dla zestawu).
     fmt::print(stderr, "unknown parameter: {}\n", key);
 }
 
