@@ -72,6 +72,12 @@ trim_right(std::string s) noexcept {
     s.erase(std::find_if(s.rbegin(), s.rend(), is_not_space).base(), s.end());
     return s;
 }
+std::string_view share::
+trimv_right(std::string_view sv) noexcept {
+    auto const n = std::distance(std::find_if(sv.rbegin(), sv.rend(), is_not_space).base(), sv.end());
+    sv.remove_suffix(n);
+    return sv;
+}
 
 /// Usunięcie wiodących i zamykających białych znaków (z obu stron).
 /// \param s - string z którego należy usunąć białe znaki
@@ -81,8 +87,8 @@ trim(std::string s) noexcept {
     return trim_left(trim_right(std::move(s)));
 }
 
-std::vector<std::string> share::
-split_view(std::string_view sv, char const delimiter) noexcept {
+std::vector<std::string_view> share::
+splitv(std::string_view sv, char const delimiter) noexcept {
     // Lepiej policzyć delimitery niż później realokować wektor.
     auto const n = std::accumulate(
             sv.cbegin(),
@@ -93,17 +99,17 @@ split_view(std::string_view sv, char const delimiter) noexcept {
             }
     );
 
-    std::vector<std::string> tokens{};
+    std::vector<std::string_view> tokens{};
     tokens.reserve(n + 1);
 
     auto pos = sv.find(delimiter);
     while (pos != std::string_view::npos) {
-        tokens.push_back(trim({sv.data(), sv.data() + pos}));
+        tokens.push_back(trimv_right({sv.data(), sv.data() + pos}));
         sv.remove_prefix(pos + 1);
         pos = sv.find(delimiter);
     }
     if (sv.data() != sv.end())
-        tokens.push_back(trim({sv.data(), sv.end()}));
+        tokens.push_back(trimv_right({sv.data(), sv.end()}));
 
     return tokens;
 }

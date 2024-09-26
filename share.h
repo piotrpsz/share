@@ -93,16 +93,28 @@ public:
     /// \param s - string z którego należy usunąć białe znaki
     /// \return string bez wiodących białych znaków.
     static std::string trim_left(std::string s) noexcept;
+    static inline std::string_view trimv_left(std::string_view sv) noexcept {
+        sv.remove_prefix(
+                std::distance(
+                        sv.cbegin(),
+                        std::find_if(sv.cbegin(), sv.cend(), is_not_space)
+                ));
+        return sv;
+    }
 
     /// Usunięcie zamykającyh (końcowych) białych znaków (z prawej strony).
     /// \param s - string z którego należy usunąć białe znaki
     /// \return string bez zamykających białych znaków.
     static std::string trim_right(std::string s) noexcept;
+    static std::string_view trimv_right(std::string_view sv) noexcept;
 
     /// Usunięcie wiodących i zamykających białych znaków (z obu stron).
     /// \param s - string z którego należy usunąć białe znaki
     /// \return string bez wiodących i zamykających białych znaków.
     static std::string trim(std::string s) noexcept;
+    static inline std::string_view trimv(std::string_view sv) noexcept {
+        return trimv_left(trimv_right(sv));
+    }
 
     /// Podział przysłanego stringa na wektor stringów. \n
     /// Wyodrębnianie stringów składowych odbywa się po napotkaniu delimiter'a.
@@ -110,7 +122,7 @@ public:
     /// \param delimiter - znak sygnalizujący podział,
     /// \return Wektor stringów.
     static std::vector<std::string> split(std::string const& text, char const delimiter) noexcept;
-    static std::vector<std::string> split_view(std::string_view text, char const delimiter) noexcept;
+    static std::vector<std::string_view> splitv(std::string_view text, char const delimiter) noexcept;
 
     /// Tworzy string będący złączeniem stringów przysłanych w wektorze. \n
     /// Łączone stringi rozdzielone są przysłanym delimiter'em.
