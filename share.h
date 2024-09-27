@@ -24,6 +24,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <numeric>
 #include <string_view>
 #include <span>
 #include <fmt/core.h>
@@ -100,6 +101,18 @@ public:
                         std::find_if(sv.cbegin(), sv.cend(), is_not_space)
                 ));
         return sv;
+    }
+
+    static inline size_t new_line_count(std::string_view sv) noexcept {
+        // Lepiej policzyć delimitery niż później realokować wektor.
+        return std::accumulate(
+                sv.cbegin(),
+                sv.cend(),
+                ssize_t{0},
+                [](ssize_t const count, char const c) {
+                    return (c == '\n') ? count + 1 : count;
+                }
+        );
     }
 
     /// Usunięcie zamykającyh (końcowych) białych znaków (z prawej strony).
